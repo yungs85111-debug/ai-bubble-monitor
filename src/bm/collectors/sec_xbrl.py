@@ -25,8 +25,8 @@ SEC_COMPANY_FACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.jso
 # XBRL tags for self-funding indicators
 TAGS_SELF_FUNDING = {
     "capex": [
+        "PaymentsToAcquireProductiveAssets",  # Prefer modern tag (NVDA, AMZN use this)
         "PaymentsToAcquirePropertyPlantAndEquipment",
-        "PaymentsToAcquireProductiveAssets",
         "CapitalExpendituresIncurredButNotYetPaid",
         "PaymentsForCapitalImprovements",
     ],
