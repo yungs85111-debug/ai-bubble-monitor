@@ -2,7 +2,7 @@
 
 Evidence-based monitoring system for tracking AI bubble debate premises using public financial data.
 
-🌐 **Live Dashboard**: [View Dashboard](https://YOUR_USERNAME.github.io/ai-bubble-monitor/)
+🌐 **Live Dashboard**: [View Dashboard](https://yungs85111-debug.github.io/ai-bubble-monitor/)
 
 ## Features
 
@@ -183,7 +183,7 @@ bm report
 ./scripts/deploy.sh "Q3 2024 update"
 ```
 
-Dashboard will be live at: `https://YOUR_USERNAME.github.io/ai-bubble-monitor/`
+Dashboard will be live at: `https://yungs85111-debug.github.io/ai-bubble-monitor/`
 
 ## License
 
