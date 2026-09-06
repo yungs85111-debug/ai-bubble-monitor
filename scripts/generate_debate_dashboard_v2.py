@@ -595,6 +595,8 @@ def get_category_summary(category_prefix):
 
         if num_companies == 5:
             interpretation = "구매 약정이 META에 집중되며 규모도 급증 (6개사 중 5개사 데이터, MSFT 누락)"
+        elif num_companies <= 3:
+            interpretation = f"⚠️ 데이터 부족: 6개사 중 {num_companies}개사만 보고. Purchase obligations는 일부 기업만 XBRL로 공시하여 최신 분기 데이터 수집 제한적"
         else:
             interpretation = "구매 약정이 META에 집중되며 규모도 급증하는 구조적 변화"
 
