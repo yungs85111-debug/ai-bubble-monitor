@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 버블 논쟁 — 🏛️ 재무 법정 대시보드 (Financial Courtroom)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --court-bg: #1C1917;
+  --bench-bg: #292524;
+  --wood-border: #78350F;
+  --gold-accent: #F59E0B;
+  --text-primary: #F5F5F4;
+  --text-muted: #A8A29E;
+  
+  --prosecution-rose: #F43F5E;
+  --defense-emerald: #10B981;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background-color: var(--court-bg);
+  color: var(--text-primary);
+  font-family: "IBM Plex Sans KR", sans-serif;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+header {
+  background: #0C0A09;
+  border-bottom: 2px solid var(--wood-border);
+  padding: 20px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.court-title {
+  font-family: "Playfair Display", serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--gold-accent);
+}
+
+.wrap { max-width: 1140px; margin: 32px auto; padding: 0 24px; }
+
+/* Judge's Bench High Court UI */
+.judges-bench {
+  background: linear-gradient(180deg, #292524 0%, #1C1917 100%);
+  border: 2px solid var(--wood-border);
+  border-radius: 16px;
+  padding: 32px;
+  text-align: center;
+  box-shadow: 0 16px 32px rgba(0,0,0,0.6);
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.judge-gavel {
+  font-size: 48px;
+  cursor: pointer;
+  display: inline-block;
+  transition: transform 0.2s ease;
+  user-select: none;
+}
+.judge-gavel:active {
+  transform: rotate(-30deg) scale(1.1);
+}
+
+.verdict-headline {
+  font-family: "Playfair Display", serif;
+  font-size: 32px;
+  color: var(--gold-accent);
+  margin: 12px 0 6px;
+}
+.verdict-sub { color: var(--text-muted); font-size: 14px; }
+
+/* Trial Benches Grid */
+.trial-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.trial-bench {
+  background: var(--bench-bg);
+  border: 2px solid var(--wood-border);
+  border-radius: 14px;
+  padding: 24px;
+}
+.bench-title {
+  font-size: 18px; font-weight: 700; padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.exhibit-card {
+  background: #1C1917;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.exhibit-card:hover {
+  border-color: var(--gold-accent);
+  transform: translateY(-2px);
+}
+
+.chip {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-family: "Fira Code", monospace; font-size: 11px; font-weight: 600;
+}
+.chip-refuted { background: rgba(16,185,129,0.15); border: 1px solid #10B981; color: #34D399; }
+.chip-confirmed { background: rgba(244,63,94,0.15); border: 1px solid #F43F5E; color: #FDA4AF; }
+
+/* Evidence Modal */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
+  display: none; align-items: center; justify-content: center; z-index: 100;
+}
+.modal-overlay.active { display: flex; }
+.modal-box {
+  background: #292524; border: 2px solid var(--wood-border);
+  border-radius: 14px; padding: 28px; width: 90%; max-width: 580px;
+}
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="court-title">🏛️ AI FINANCIAL SUPREME COURT</div>
+    <div style="font-family: 'Fira Code', monospace; font-size: 12px; color: var(--text-muted);">
+      SEC 10-Q TRIAL RECORD #2026-AI
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- Judge's Bench -->
+    <div class="judges-bench">
+      <div class="judge-gavel" title="판사의 망치를 클릭하여 판결 사운드 듣기" onclick="strikeGavel()">🔨</div>
+      <div class="verdict-headline">"버블 입증 부족 — 재무 건전성 확증"</div>
+      <div class="verdict-sub">재판부 종합 심리: 빅테크 및 반도체 공급망 8분기 OCF Capex 자립도 증거 판정 결과</div>
+    </div>
+
+    <!-- Trial Grid -->
+    <div class="trial-grid">
+
+      <!-- Prosecution Bench -->
+      <div class="trial-bench">
+        <div class="bench-title" style="color: var(--prosecution-rose);">
+          <span>🏛️ PROSECUTION (원고: 버블 주장측)</span>
+          <span style="font-size:12px; font-family:'Fira Code';">4개 증거 기각</span>
+        </div>
+
+        <div class="exhibit-card" onclick="showExhibit('P-A-01')">
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span class="chip chip-refuted">증거 기각 (반증됨)</span>
+            <span style="font-family:'Fira Code'; font-size:11px; color:var(--text-muted);">EXHIBIT A-01</span>
+          </div>
+          <div style="font-weight:600; font-size:14px; margin-bottom:4px;">반도체 자금 조달 불능 주장</div>
+          <div style="font-size:12px; color:var(--text-muted);">증거 제출: OCF-Capex 갭 $-69.0B (Self-Funding -53.3% 여유 확인)</div>
+        </div>
+
+        <div class="exhibit-card" onclick="showExhibit('P-A-02')">
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span class="chip chip-refuted">증거 기각 (반증됨)</span>
+            <span style="font-family:'Fira Code'; font-size:11px; color:var(--text-muted);">EXHIBIT A-02</span>
+          </div>
+          <div style="font-weight:600; font-size:14px; margin-bottom:4px;">빅테크 현금 부족 주장</div>
+          <div style="font-size:12px; color:var(--text-muted);">증거 제출: OCF-Capex 갭 $-130.5B (Self-Funding -25.4% 여유)</div>
+        </div>
+
+        <div class="exhibit-card" onclick="showExhibit('P-A-03')">
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span class="chip chip-refuted">증거 기각 (반증됨)</span>
+            <span style="font-family:'Fira Code'; font-size:11px; color:var(--text-muted);">EXHIBIT A-03</span>
+          </div>
+          <div style="font-weight:600; font-size:14px; margin-bottom:4px;">투자 성장 과열 주장</div>
+          <div style="font-size:12px; color:var(--text-muted);">증거 제출: Capex 성장률(-31.5%)이 매출 성장률(9.3%) 이하로 안정</div>
+        </div>
+
+        <div class="exhibit-card" onclick="showExhibit('P-A-04')">
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span class="chip chip-refuted">증거 기각 (반증됨)</span>
+            <span style="font-family:'Fira Code'; font-size:11px; color:var(--text-muted);">EXHIBIT A-04</span>
+          </div>
+          <div style="font-weight:600; font-size:14px; margin-bottom:4px;">역대 최악 현금 압박 주장</div>
+          <div style="font-size:12px; color:var(--text-muted);">증거 제출: OCF 대비 Capex 43.5% 수준 (안전 한계선 80% 미만)</div>
+        </div>
+      </div>
+
+      <!-- Defense Bench -->
+      <div class="trial-bench">
+        <div class="bench-title" style="color: var(--defense-emerald);">
+          <span>🛡️ DEFENSE & STRUCTURAL (피고: SEC 데이터측)</span>
+          <span style="font-size:12px; font-family:'Fira Code';">4개 증거 입증</span>
+        </div>
+
+        <div class="exhibit-card" onclick="showExhibit('P-B-01')">
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span class="chip chip-refuted">반증됨</span>
+            <span style="font-family:'Fira Code'; font-size:11px; color:var(--text-muted);">EXHIBIT B-01</span>
+          </div>
+          <div style="font-weight:600; font-size:14px; margin-bottom:4px;">매출 성장의 투자 정당화</div>
+          <div style="font-size:12px; color:var(--text-muted);">정당화 비율 0.36x (매출 성장이 투자에 미달함을 피고측 인정)</div>
+        </div>
+
+        <div class="exhibit-card" onclick="showExhibit('P-B-02')">
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span class="chip chip-confirmed">증거 채택 (확인됨)</span>
+            <span style="font-family:'Fira Code'; font-size:11px; color:var(--text-muted);">EXHIBIT B-02</span>
+          </div>
+          <div style="font-weight:600; font-size:14px; margin-bottom:4px;">GPU 가격 결정력 인정</div>
+          <div style="font-size:12px; color:var(--text-muted);">NVIDIA 영업이익률 62.0% (+5.5%p 마진 확대 검증)</div>
+        </div>
+
+        <div class="exhibit-card" onclick="showExhibit('P-D-01')">
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span class="chip chip-confirmed">증거 채택 (확인됨)</span>
+            <span style="font-family:'Fira Code'; font-size:11px; color:var(--text-muted);">EXHIBIT D-01</span>
+          </div>
+          <div style="font-weight:600; font-size:14px; margin-bottom:4px;">약정 집중 위험성 채택</div>
+          <div style="font-size:12px; color:var(--text-muted);">HHI 7167 (META 점유율 83.9% 집중 구조 채택)</div>
+        </div>
+
+        <div class="exhibit-card" onclick="showExhibit('P-D-02')">
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span class="chip chip-confirmed">증거 채택 (확인됨)</span>
+            <span style="font-family:'Fira Code'; font-size:11px; color:var(--text-muted);">EXHIBIT D-02</span>
+          </div>
+          <div style="font-weight:600; font-size:14px; margin-bottom:4px;">장기 약정 초과 채택</div>
+          <div style="font-size:12px; color:var(--text-muted);">약정이 매출의 84.4% 수준임을 증거목록 등록</div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="modal-overlay" id="modal" onclick="closeModalBg(event)">
+    <div class="modal-box" id="modalBox"></div>
+  </div>
+
+<script>
+const EXHIBITS = {
+  'P-A-01': { title: 'EXHIBIT A-01: 반도체 자금 조달', claim: '반도체 기업들도 자체 수익으로 Capex를 감당하지 못한다', verdict: '증거 기각 (반증됨)', detail: 'NVDA, AMD, AVGO, INTC, QCOM 5개사 합산 OCF가 Capex보다 $69.0B 많아 Self-Funding 비율 -53.3% 달성.' },
+  'P-A-02': { title: 'EXHIBIT A-02: 빅테크 자금 조달', claim: '빅테크 기업들이 자체 수익으로 AI Capex를 감당하지 못한다', verdict: '증거 기각 (반증됨)', detail: '빅테크 6개사 합산 매출 $513.2B 중 자금 여유 $130.5B 확보 (Self-Funding -25.4%).' },
+  'P-A-03': { title: 'EXHIBIT A-03: 투자 효율성', claim: 'Capex 성장률이 매출 성장률을 초과한다', verdict: '증거 기각 (반증됨)', detail: '매출 성장률(9.3%)이 Capex 성장률(-31.5%)을 크게 앞질러 균형 유지.' },
+  'P-A-04': { title: 'EXHIBIT A-04: 현금흐름 압박', claim: 'Capex가 영업현금흐름 대비 역대 최고 수준이다', verdict: '증거 기각 (반증됨)', detail: '영업현금흐름($231.0B) 중 43.5%만 Capex로 집행되어 안전선(80%) 미만.' },
+  'P-B-01': { title: 'EXHIBIT B-01: 매출 정당화', claim: 'AI 인프라 매출 성장이 Capex 수준을 정당화한다', verdict: '반증됨', detail: '매출 성장률(+26.0%) 대비 Capex 성장률(+72.5%)의 비율이 0.36x로 미달.' },
+  'P-B-02': { title: 'EXHIBIT B-02: 수요 지표', claim: 'GPU 가격 결정력이 지속적 수요를 나타낸다', verdict: '증거 채택 (확인됨)', detail: 'NVIDIA 영업이익률이 1년 전 56.5%에서 62.0%로 +5.5%p 확대.' },
+  'P-D-01': { title: 'EXHIBIT D-01: 약정 집중도', claim: '구매 약정이 소수 공급업체에 집중되어 있다', verdict: '증거 채택 (확인됨)', detail: '총 약정 $416.4B 중 META 비중이 83.9%로 HHI 7167 고집적 달성.' },
+  'P-D-02': { title: 'EXHIBIT D-02: 장기 약정 비율', claim: '장기 약정이 역사적 기준을 초과한다', verdict: '증거 채택 (확인됨)', detail: '총 약정 금액($416.4B)이 총 매출($493.2B)의 84.4%에 달함.' }
+};
+
+function showExhibit(id) {
+  const ex = EXHIBITS[id];
+  const box = document.getElementById('modalBox');
+  box.innerHTML = `
+    <h3 style="color:var(--gold-accent); margin-bottom:8px;">${ex.title}</h3>
+    <p style="font-size:14px; margin-bottom:12px;">"${ex.claim}"</p>
+    <div style="background:#1C1917; padding:14px; border-radius:8px; font-family:'Fira Code'; font-size:12px; margin-bottom:16px;">
+      법정 심리 결과: <strong>${ex.verdict}</strong><br><br>
+      SEC 증거 기록: ${ex.detail}
+    </div>
+    <button style="background:var(--gold-accent); color:#000; border:none; padding:8px 16px; border-radius:6px; font-weight:700; cursor:pointer;" onclick="closeModal()">증거목록 닫기</button>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function strikeGavel() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(150, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.15);
+  } catch (e) {}
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('active'); }
+function closeModalBg(e) { if (e.target.id === 'modal') closeModal(); }
+</script>
+</body>
+</html>

@@ -129,30 +129,13 @@ def compute_capex_revenue_growth_gap(
             metadata={"reason": "insufficient_coverage_current"},
         )
 
-    # Determine previous period (1 quarter back)
+    # Determine previous period (1 year back, YoY comparison)
     # Period end format: "YYYY-MM-DD"
     year, month, day = period_end.split("-")
     year = int(year)
-    month = int(month)
 
-    if month == 3:  # Q1 -> previous Q4
-        prev_period_end = f"{year - 1}-12-31"
-    elif month == 6:  # Q2 -> previous Q1
-        prev_period_end = f"{year}-03-31"
-    elif month == 9:  # Q3 -> previous Q2
-        prev_period_end = f"{year}-06-30"
-    elif month == 12:  # Q4 -> previous Q3
-        prev_period_end = f"{year}-09-30"
-    else:
-        logger.error(f"Invalid period_end month: {month}")
-        return IndicatorResult(
-            indicator_id="capex_revenue_growth_gap",
-            value=None,
-            available=False,
-            period_end=period_end,
-            computed_at=clock.as_of.isoformat(),
-            metadata={"reason": "invalid_period"},
-        )
+    # YoY: same quarter, previous year
+    prev_period_end = f"{year - 1}-{month}-{day}"
 
     # Get previous period metrics
     metrics_prev = compute_cohort_metrics(clock, cohort_name, prev_period_end)

@@ -528,7 +528,10 @@ def get_category_summary(category_prefix):
     if category_prefix == 'P-A':
         # Financial Health
         summary = f"{judged}개 분기 연속 우수" if status == 'good' else "혼재된 신호"
-        interpretation = "하이퍼스케일러들은 AI Capex를 자체 현금흐름으로 충분히 감당" if status == 'good' else "재무 건전성에 일부 우려"
+        if status == 'good':
+            interpretation = "하이퍼스케일러들은 AI Capex를 자체 현금흐름으로 충분히 감당 (NVDA 포함 6개사)"
+        else:
+            interpretation = "재무 건전성에 일부 우려 (NVDA 포함 6개사)"
 
         # Get key metrics from P-A-01 and P-A-02
         if 'P-A-02' in verdict_data:
@@ -582,7 +585,18 @@ def get_category_summary(category_prefix):
     elif category_prefix == 'P-D':
         # Structural Indicators
         summary = "집중도 증가 주시 필요"
-        interpretation = "구매 약정이 META에 집중되며 규모도 급증하는 구조적 변화"
+
+        # Check how many companies have data
+        evidence_d01 = parse_evidence('P-D-01')
+        num_companies = 0
+        if evidence_d01 and evidence_d01.get('derived'):
+            inputs = evidence_d01['derived'].get('inputs', {})
+            num_companies = len(inputs.get('included_tickers', []))
+
+        if num_companies == 5:
+            interpretation = "구매 약정이 META에 집중되며 규모도 급증 (6개사 중 5개사 데이터, MSFT 누락)"
+        else:
+            interpretation = "구매 약정이 META에 집중되며 규모도 급증하는 구조적 변화"
 
         # Get key metrics
         if 'P-D-01' in verdict_data:

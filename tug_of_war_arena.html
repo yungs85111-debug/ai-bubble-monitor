@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 버블 논쟁 — ⚔️ 줄다리기 아레나 대시보드 (Tug-of-War Arena)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-dark: #0F172A;
+  --card-bg: #1E293B;
+  --border: #334155;
+  --text-main: #F8FAFC;
+  --text-muted: #94A3B8;
+  
+  --bubble-red: #F43F5E;
+  --counter-green: #10B981;
+  --gold: #F59E0B;
+  --cyan: #38BDF8;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: "IBM Plex Sans KR", sans-serif;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+header {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky; top: 0; z-index: 10;
+}
+.title { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.badge { background: var(--gold); color: #000; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px; }
+
+.wrap { max-width: 1140px; margin: 32px auto; padding: 0 24px; }
+
+/* Tug-of-War Hero Stage */
+.arena-stage {
+  background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.stage-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+.stage-sub { color: var(--text-muted); font-size: 14px; margin-bottom: 36px; }
+
+/* Dynamic Rope Graphic */
+.rope-track {
+  height: 60px;
+  background: #0B132B;
+  border: 2px solid var(--border);
+  border-radius: 30px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  margin: 30px 0;
+  box-shadow: inset 0 4px 12px rgba(0,0,0,0.8);
+}
+.rope-line {
+  position: absolute;
+  top: 50%; left: 40px; right: 40px;
+  height: 12px;
+  background: repeating-linear-gradient(45deg, #78350F, #78350F 15px, #92400E 15px, #92400E 30px);
+  transform: translateY(-50%);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+.rope-flag {
+  width: 54px; height: 54px;
+  background: radial-gradient(circle, #F59E0B 0%, #D97706 100%);
+  border: 4px solid #FFF;
+  border-radius: 50%;
+  position: absolute;
+  left: 72%; /* Pulled right towards counter advocates due to 4 refuted bubble premises */
+  transform: translate(-50%, -50%);
+  top: 50%;
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  transition: left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.teams-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-top: 40px;
+  text-align: left;
+}
+
+.team-box {
+  background: rgba(30, 41, 59, 0.7);
+  border-radius: 16px;
+  padding: 24px;
+  border: 2px solid var(--border);
+}
+.team-bubble { border-color: rgba(244, 63, 94, 0.4); }
+.team-counter { border-color: rgba(16, 185, 129, 0.4); }
+
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.team-name { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.team-pull { font-family: "Fira Code", monospace; font-weight: 700; font-size: 16px; }
+
+.premise-card {
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.premise-card:hover {
+  transform: translateX(4px);
+  border-color: var(--cyan);
+}
+
+.status-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: "Fira Code", monospace;
+  font-weight: 600;
+}
+.tag-refuted { background: rgba(16, 185, 129, 0.15); border: 1px solid #10B981; color: #34D399; }
+.tag-confirmed { background: rgba(244, 63, 94, 0.15); border: 1px solid #F43F5E; color: #FDA4AF; }
+
+/* Modal Drawer */
+.modal {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+  display: none; align-items: center; justify-content: center; z-index: 100;
+}
+.modal.active { display: flex; }
+.modal-box {
+  background: #1E293B; border: 1px solid var(--border); border-radius: 16px;
+  width: 90%; max-width: 600px; padding: 28px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+}
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="title">
+      <span>⚔️ AI 버블 논쟁 — 줄다리기 아레나</span>
+      <span class="badge">SEC DATA TENSION</span>
+    </div>
+    <div style="font-family: 'Fira Code', monospace; font-size: 12px; color: var(--text-muted);">
+      LAST UPDATED: 2026-09-06
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- Arena Stage -->
+    <div class="arena-stage">
+      <div class="stage-title">AI BUBBLE TUG-OF-WAR ARENA</div>
+      <div class="stage-sub">SEC 공시 데이터(OCF, Capex, Self-Funding, HHI)를 실시간 반영한 양측 장력 측정기</div>
+
+      <!-- Rope Track -->
+      <div class="rope-track">
+        <div style="position: absolute; left: 24px; color: var(--bubble-red); font-weight:700; font-size:13px; z-index:2;">
+          🔴 BUBBLE ADVOCATES (-4 FORCE)
+        </div>
+        <div class="rope-line"></div>
+        <div class="rope-flag" id="flag">🚩</div>
+        <div style="position: absolute; right: 24px; color: var(--counter-green); font-weight:700; font-size:13px; z-index:2;">
+          🟢 COUNTER ADVOCATES (+6 SEC FORCE)
+        </div>
+      </div>
+
+      <p style="font-size: 13px; color: var(--gold); font-family: 'Fira Code', monospace;">
+        현재 승세: 🟢 반론파 우세 (빅테크/반도체 자립도 -53.3%/-25.4% 및 투자균형으로 버블 우려 4개 전제 반증)
+      </p>
+
+      <!-- Teams Grid -->
+      <div class="teams-grid">
+        
+        <!-- Bubble Team -->
+        <div class="team-box team-bubble">
+          <div class="team-header">
+            <div class="team-name" style="color: var(--bubble-red);">
+              <span>🔥 버블 우려파</span>
+            </div>
+            <div class="team-pull" style="color: var(--bubble-red);">장력 약화 (4개 반증)</div>
+          </div>
+
+          <div class="premise-card" onclick="openPremise('P-A-01')">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span class="status-tag tag-refuted">반증됨</span>
+              <span style="font-family:'Fira Code'; font-size:11px; color:var(--text-muted);">P-A-01</span>
+            </div>
+            <div style="font-weight:600; font-size:14px; margin-bottom:4px;">반도체 자금 조달</div>
+            <div style="font-size:12px; color:var(--text-muted);">자체 수익으로 감당 가능 (여유 53%)</div>
+          </div>
+
+          <div class="premise-card" onclick="openPremise('P-A-02')">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span class="status-tag tag-refuted">반증됨</span>
+              <span style="font-family:'Fira Code'; font-size:11px; color:var(--text-muted);">P-A-02</span>
+            </div>
+            <div style="font-weight:600; font-size:14px; margin-bottom:4px;">빅테크 자금 조달</div>
+            <div style="font-size:12px; color:var(--text-muted);">자체 수익으로 감당 가능 (여유 25%)</div>
+          </div>
+
+          <div class="premise-card" onclick="openPremise('P-A-03')">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span class="status-tag tag-refuted">반증됨</span>
+              <span style="font-family:'Fira Code'; font-size:11px; color:var(--text-muted);">P-A-03</span>
+            </div>
+            <div style="font-weight:600; font-size:14px; margin-bottom:4px;">투자 효율성</div>
+            <div style="font-size:12px; color:var(--text-muted);">매출 성장 ≥ 투자 성장 (균형)</div>
+          </div>
+
+          <div class="premise-card" onclick="openPremise('P-A-04')">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span class="status-tag tag-refuted">반증됨</span>
+              <span style="font-family:'Fira Code'; font-size:11px; color:var(--text-muted);">P-A-04</span>
+            </div>
+            <div style="font-weight:600; font-size:14px; margin-bottom:4px;">현금흐름 압박</div>
+            <div style="font-size:12px; color:var(--text-muted);">OCF의 43.5% 투자 중 (안전선 <80%)</div>
+          </div>
+        </div>
+
+        <!-- Counter Team -->
+        <div class="team-box team-counter">
+          <div class="team-header">
+            <div class="team-name" style="color: var(--counter-green);">
+              <span>🛡️ 반론 & 구조 검증파</span>
+            </div>
+            <div class="team-pull" style="color: var(--counter-green);">우세 장력 (+6 힘)</div>
+          </div>
+
+          <div class="premise-card" onclick="openPremise('P-B-01')">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span class="status-tag tag-refuted">반증됨</span>
+              <span style="font-family:'Fira Code'; font-size:11px; color:var(--text-muted);">P-B-01</span>
+            </div>
+            <div style="font-weight:600; font-size:14px; margin-bottom:4px;">매출 정당화</div>
+            <div style="font-size:12px; color:var(--text-muted);">매출 성장이 투자에 미달 (비율 0.36x)</div>
+          </div>
+
+          <div class="premise-card" onclick="openPremise('P-B-02')">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span class="status-tag tag-confirmed">확인됨</span>
+              <span style="font-family:'Fira Code'; font-size:11px; color:var(--text-muted);">P-B-02</span>
+            </div>
+            <div style="font-weight:600; font-size:14px; margin-bottom:4px;">수요 지표 (GPU 마진)</div>
+            <div style="font-size:12px; color:var(--text-muted);">마진 확대 (+5.5%p) - 가격 파워 유지</div>
+          </div>
+
+          <div class="premise-card" onclick="openPremise('P-D-01')">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span class="status-tag tag-confirmed">확인됨</span>
+              <span style="font-family:'Fira Code'; font-size:11px; color:var(--text-muted);">P-D-01</span>
+            </div>
+            <div style="font-weight:600; font-size:14px; margin-bottom:4px;">약정 집중도 (HHI)</div>
+            <div style="font-size:12px; color:var(--text-muted);">HHI 7167 - 높은 집중도 (META 83.9%)</div>
+          </div>
+
+          <div class="premise-card" onclick="openPremise('P-D-02')">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span class="status-tag tag-confirmed">확인됨</span>
+              <span style="font-family:'Fira Code'; font-size:11px; color:var(--text-muted);">P-D-02</span>
+            </div>
+            <div style="font-weight:600; font-size:14px; margin-bottom:4px;">장기 약정 비율</div>
+            <div style="font-size:12px; color:var(--text-muted);">약정이 매출의 84.4% - 높은 수준</div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Evidence Modal -->
+  <div class="modal" id="modal" onclick="closeModalBg(event)">
+    <div class="modal-box" id="modalContent"></div>
+  </div>
+
+<script>
+const PREMISES = {
+  'P-A-01': { crux: '반도체 자금 조달', claim: '반도체 기업들도 자체 수익으로 Capex를 감당하지 못한다', status: '반증됨', detail: 'NVDA, AMD, AVGO, INTC, QCOM 합산 Revenue $129.3B, OCF-Capex 갭 $-69.0B (Self-Funding -53.3% 음수 = 자체 조달 여유)' },
+  'P-A-02': { crux: '빅테크 자금 조달', claim: '빅테크 기업들이 자체 수익으로 AI Capex를 감당하지 못한다', status: '반증됨', detail: 'NVDA, MSFT, GOOGL, META, AMZN, AAPL 합산 Revenue $513.2B, OCF-Capex 갭 $-130.5B (Self-Funding -25.4% 여유)' },
+  'P-A-03': { crux: '투자 효율성', claim: 'Capex 성장률이 매출 성장률을 초과한다', status: '반증됨', detail: 'Capex 성장 -31.5% vs 매출 성장 9.3% (성장률 격차 -40.8%p, 매출이 투자보다 빠름)' },
+  'P-A-04': { crux: '현금흐름 압박', claim: 'Capex가 영업현금흐름 대비 역대 최고 수준이다', status: '반증됨', detail: '합산 OCF $231.0B 중 Capex $100.5B (Capex/OCF 비율 43.5%, 안전 기준 80% 미만)' },
+  'P-B-01': { crux: '매출 정당화', claim: 'AI 인프라 매출 성장이 Capex 수준을 정당화한다', status: '반증됨', detail: '매출 성장 +26.0% vs Capex 성장 +72.5% (정당화 비율 0.36x < 0.7x 미달)' },
+  'P-B-02': { crux: '수요 지표', claim: 'GPU 가격 결정력이 지속적 수요를 나타낸다', status: '확인됨', detail: 'NVIDIA 영업이익률 62.0% (1년 전 대비 +5.5%p 마진 확대, 가격 결정력 유지)' },
+  'P-D-01': { crux: '약정 집중도', claim: '구매 약정이 소수 공급업체에 집중되어 있다', status: '확인됨', detail: '총 약정 $416.4B 중 META 점유율 83.9% (HHI 7167 높은 집적 위험)' },
+  'P-D-02': { crux: '장기 약정 비율', claim: '장기 약정이 역사적 기준을 초과한다', status: '확인됨', detail: '총 약정 $416.4B / 총 매출 $493.2B = 약정 비율 84.4% (역사적 고점 초과)' }
+};
+
+function openPremise(id) {
+  const p = PREMISES[id];
+  const box = document.getElementById('modalContent');
+  box.innerHTML = `
+    <h3 style="color:var(--cyan); margin-bottom:8px;">[${id}] ${p.crux}</h3>
+    <p style="font-size:14px; margin-bottom:12px;">"${p.claim}"</p>
+    <div style="background:#0F172A; padding:12px; border-radius:8px; font-family:'Fira Code'; font-size:12px; margin-bottom:16px;">
+      판정: <strong>${p.status}</strong><br>
+      근거: ${p.detail}
+    </div>
+    <button style="background:var(--cyan); color:#000; border:none; padding:8px 16px; border-radius:6px; font-weight:700; cursor:pointer;" onclick="closeModal()">닫기</button>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+function closeModal() { document.getElementById('modal').classList.remove('active'); }
+function closeModalBg(e) { if (e.target.id === 'modal') closeModal(); }
+</script>
+</body>
+</html>

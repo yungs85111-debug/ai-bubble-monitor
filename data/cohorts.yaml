@@ -3,9 +3,19 @@
 
 hyper:
   name: "AI Hyperscalers"
-  description: "Major cloud/AI infrastructure companies with significant AI capex"
+  description: "Major cloud/AI infrastructure companies with significant AI capex (includes NVDA)"
   tickers:
-    - NVDA   # NVIDIA Corporation
+    - NVDA   # NVIDIA Corporation (GPU seller, different business model)
+    - MSFT   # Microsoft Corporation
+    - GOOGL  # Alphabet Inc.
+    - META   # Meta Platforms Inc.
+    - AMZN   # Amazon.com Inc.
+    - AAPL   # Apple Inc.
+
+hyper_buyers:
+  name: "AI Hyperscaler Buyers"
+  description: "Cloud/AI infrastructure companies that purchase GPUs (excludes NVDA)"
+  tickers:
     - MSFT   # Microsoft Corporation
     - GOOGL  # Alphabet Inc.
     - META   # Meta Platforms Inc.
