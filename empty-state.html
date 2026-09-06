@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 버블 논쟁 모니터 — 판정 대기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EEF1F3;
+  --card:#FFFFFF;
+  --ink:#16202B;
+  --ink-2:#5B6B79;
+  --ink-3:#93A1AC;
+  --rule:#D6DEE3;
+  --rule-2:#BCC7CF;
+  --pending:#7C6FA0;
+  --pending-bg:#EDEAF3;
+  --interpretive:#8B6914;
+  --interpretive-bg:#F5F0E1;
+  --sans:"IBM Plex Sans KR",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:300;line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:880px;margin:0 auto;padding:0 24px 96px}
+
+.bar{display:flex;justify-content:space-between;align-items:center;gap:16px;
+     padding:20px 0;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.bar .name{font-size:13px;font-weight:400;letter-spacing:.01em}
+.bar .state{font-family:var(--mono);font-size:11px;color:var(--pending);
+     background:var(--pending-bg);padding:4px 10px;border-radius:2px}
+
+.hero{padding:80px 0 44px;max-width:600px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+     text-transform:uppercase;color:var(--ink-3);margin-bottom:24px}
+h1{font-size:clamp(30px,6.2vw,50px);font-weight:200;line-height:1.24;
+     letter-spacing:-.02em;margin-bottom:24px}
+.lede{font-size:16px;color:var(--ink-2);max-width:52ch}
+
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;
+     background:var(--rule);border:1px solid var(--rule);margin-bottom:64px}
+.metric{background:var(--card);padding:18px 22px}
+.metric .n{font-family:var(--mono);font-size:26px;font-weight:400;line-height:1.2}
+.metric .k{font-size:12px;color:var(--ink-2);margin-top:2px}
+
+.block{margin-bottom:64px}
+.block-head{display:flex;justify-content:space-between;align-items:baseline;
+     gap:16px;flex-wrap:wrap;padding-bottom:12px;margin-bottom:24px;
+     border-bottom:1px solid var(--rule-2)}
+.block-head h2{font-size:15px;font-weight:500}
+.block-head span{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);
+     border:1px solid var(--rule)}
+.step{background:var(--card);padding:22px}
+.step .num{font-family:var(--mono);font-size:11px;color:var(--pending);
+     letter-spacing:.1em;margin-bottom:12px}
+.step b{display:block;font-size:14px;font-weight:400;margin-bottom:6px}
+.step p{font-size:13px;color:var(--ink-2);line-height:1.6}
+.ready{font-size:12px;color:var(--ink-3);margin-top:16px;line-height:1.8}
+.ready b{font-weight:400;color:var(--ink-2)}
+
+.axis{background:var(--card);border:1px solid var(--rule);padding:8px 28px 30px;
+     position:relative}
+.centerline{position:absolute;left:calc(100% - 28px - 38px);top:8px;bottom:52px;width:0;
+     border-left:1px dashed var(--rule-2)}
+.centerlabel{position:absolute;left:calc(100% - 28px - 38px);bottom:26px;
+     transform:translateX(-50%);font-family:var(--mono);font-size:10px;
+     color:var(--ink-3);background:var(--card);padding:0 8px;white-space:nowrap}
+.crux{padding-top:22px}
+.crux-head{display:flex;justify-content:space-between;align-items:baseline;
+     gap:12px;margin-bottom:8px}
+.crux-head h3{font-size:14px;font-weight:500;flex:1}
+.crux-head em{font-style:normal;font-family:var(--mono);font-size:10px;
+     color:var(--ink-3)}
+.crux-head .desc{font-size:11px;color:var(--ink-3);margin-left:8px}
+.row{display:grid;grid-template-columns:44px 1fr 76px;align-items:center;gap:12px;
+     padding:11px 0;border-bottom:1px solid var(--rule)}
+.row:first-of-type{border-top:1px solid var(--rule)}
+.side{font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+.claim{font-size:14px;line-height:1.5}
+.claim .pid{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-right:8px}
+.claim .why{display:block;font-size:12px;color:var(--ink-3);margin-top:3px;line-height:1.5}
+.mark{justify-self:center;display:flex;align-items:center;gap:7px;
+     font-family:var(--mono);font-size:10px;color:var(--pending)}
+.dot{width:7px;height:7px;border-radius:50%;border:1px solid var(--pending);
+     background:var(--pending-bg)}
+.row.off .claim{color:var(--ink-3)}
+.row.off .mark{color:var(--ink-3)}
+.row.off .dot{border-color:var(--rule-2);background:transparent}
+.row.interpretive .claim{color:var(--ink-2)}
+.row.interpretive .mark{color:var(--interpretive)}
+.row.interpretive .dot{border-color:var(--interpretive);background:var(--interpretive-bg)}
+.note{font-size:13px;color:var(--ink-2);margin-top:26px;padding-top:20px;
+     border-top:1px solid var(--rule)}
+
+.term{border:1px solid var(--rule);background:var(--card)}
+.term-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;
+     padding:12px 20px;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.term-bar .lbl{display:flex;align-items:center;gap:9px;font-family:var(--mono);
+     font-size:11px;color:var(--ink-2)}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--rule-2)}
+.term-bar .ch{font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+.term-body{padding:34px 20px 30px 20px;position:relative}
+.rail{position:absolute;left:44px;top:0;bottom:0;width:0;border-left:1px solid var(--rule)}
+.slot{display:grid;grid-template-columns:24px 1fr;align-items:center;gap:20px;
+     padding:9px 0}
+.slot .tick{justify-self:end;width:7px;height:7px;border-radius:50%;
+     border:1px dashed var(--rule-2);margin-right:-4px;background:var(--card)}
+.slot .ph{height:1px;background:var(--rule);max-width:min(100%,340px)}
+.slot:nth-child(3) .ph{max-width:min(100%,250px)}
+.slot:nth-child(4) .ph{max-width:min(100%,180px)}
+.term-foot{padding:22px 20px 24px 84px;border-top:1px solid var(--rule);margin-top:14px}
+.term-foot p{font-size:14px;color:var(--ink-2)}
+.term-foot .sub{font-size:12px;color:var(--ink-3);margin-top:6px}
+
+a{color:inherit}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pending);outline-offset:3px}
+
+@media (max-width:720px){
+  .hero{padding:52px 0 36px}
+  .metrics{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr}
+  .block{margin-bottom:48px}
+  .axis{padding:8px 18px 26px}
+  .centerline,.centerlabel{display:none}
+  .row{grid-template-columns:38px 1fr 58px;gap:8px}
+  .term-body{padding-left:14px}
+  .rail{left:34px}
+  .term-foot{padding-left:14px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .hero>*{animation:rise .5s cubic-bezier(.2,.6,.2,1) backwards}
+  .hero>*:nth-child(2){animation-delay:.06s}
+  .hero>*:nth-child(3){animation-delay:.12s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}}
+  .pulse{animation:breathe 3.4s ease-in-out infinite}
+  @keyframes breathe{0%,100%{opacity:.35}50%{opacity:1}}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="bar">
+    <span class="name">AI 버블 논쟁 모니터</span>
+    <span class="state">판정선 미확정</span>
+  </header>
+
+  <section class="hero">
+    <p class="eyebrow">현재 상태</p>
+    <h1>아직 아무것도<br>판정하지 않았습니다</h1>
+    <p class="lede">전제는 등록됐고 지표는 연결됐습니다. 판정선을 긋기 전까지 이 시스템은 어느 쪽 주장도 참이라고 말하지 않습니다.</p>
+  </section>
+
+  <div class="metrics">
+    <div class="metric"><p class="n">4</p><p class="k">추적 중인 쟁점</p></div>
+    <div class="metric"><p class="n">6</p><p class="k">등록된 전제</p></div>
+  </div>
+
+  <section class="block">
+    <div class="block-head">
+      <h2>판정을 시작하려면</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <p class="num">01</p>
+        <b>기준점 유도</b>
+        <p>전제 문장에서 경계를 끌어냅니다. 분포를 보고 정하지 않습니다.</p>
+      </div>
+      <div class="step">
+        <p class="num">02</p>
+        <b>완충폭 산출</b>
+        <p>계열이 통상 얼마나 흔들리는지 측정합니다. 판정 결과는 보지 않습니다.</p>
+      </div>
+      <div class="step">
+        <p class="num">03</p>
+        <b>사람의 승인</b>
+        <p>두 값이 정해지고 승인돼야 규칙이 켜집니다.</p>
+      </div>
+    </div>
+    <p class="ready"><b>준비된 것</b> — 지표 3개 연결 · 자립도 8분기 백필 완료 · 종료월이 다른 기업이 같은 달력 분기에 정렬 · 미래 공시를 섞어도 재생 결과가 바뀌지 않음</p>
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <h2>쟁점별 전제</h2>
+      <span>4개 쟁점 · 6건 전부 미결</span>
+    </div>
+    <div class="axis">
+      <div class="centerline"></div>
+
+      <div class="crux">
+        <div class="crux-head"><h3>조달능력</h3><em>관측대기</em><span class="desc">지표는 연결됐으나 아직 판정된 전제 없음</span></div>
+        <div class="row">
+          <span class="side">버블</span>
+          <p class="claim"><span class="pid">P-A-03</span>영업현금흐름만으로 CAPEX를 감당하지 못한다</p>
+          <span class="mark"><i class="dot"></i>미결</span>
+        </div>
+        <div class="row">
+          <span class="side">반박</span>
+          <p class="claim"><span class="pid">P-B-07</span>잉여현금으로 충분히 감당 가능하다</p>
+          <span class="mark"><i class="dot"></i>미결</span>
+        </div>
+        <div class="row interpretive">
+          <span class="side">반박</span>
+          <p class="claim"><span class="pid">P-B-02</span>일시적 초과일 뿐 구조적이지 않다<span class="why">지표의 부호로는 지속성을 가릴 수 없습니다</span></p>
+          <span class="mark"><i class="dot"></i>해석차이</span>
+        </div>
+      </div>
+
+      <div class="crux">
+        <div class="crux-head"><h3>자립도 격차</h3><em>관측대기</em><span class="desc">지표는 연결됐으나 아직 판정된 전제 없음</span></div>
+        <div class="row">
+          <span class="side">버블</span>
+          <p class="claim"><span class="pid">P-A-11</span>네오클라우드의 외부조달 의존이 확대되고 있다</p>
+          <span class="mark"><i class="dot"></i>미결</span>
+        </div>
+      </div>
+
+      <div class="crux">
+        <div class="crux-head"><h3>공급망 전이</h3><em>관측대기</em><span class="desc">지표는 연결됐으나 아직 판정된 전제 없음</span></div>
+        <div class="row">
+          <span class="side">공유</span>
+          <p class="claim"><span class="pid">P-S-01</span>메모리 단가가 대만 AI체인 매출에 전이된다</p>
+          <span class="mark"><i class="dot"></i>미결</span>
+        </div>
+      </div>
+
+      <div class="crux">
+        <div class="crux-head"><h3>부외 익스포저</h3><em>미관측</em><span class="desc">연결된 지표가 없거나 전부 비활성</span></div>
+        <div class="row off">
+          <span class="side">버블</span>
+          <p class="claim"><span class="pid">P-A-08</span>부외 보증이 재무제표에 드러나지 않는 규모로 쌓였다<span class="why">회사 자체 태그를 써서 표준 항목으로 수집되지 않습니다</span></p>
+          <span class="mark"><i class="dot"></i>미관측</span>
+        </div>
+      </div>
+
+      <span class="centerlabel">판정선 · 미정</span>
+      <p class="note">오른쪽 점선은 아직 그어지지 않은 판정선의 자리입니다. 선이 정해지면 각 전제가 참과 거짓으로 갈립니다.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <h2>원장</h2>
+      <span>0건</span>
+    </div>
+    <div class="term">
+      <div class="term-bar">
+        <span class="lbl"><i class="pulse"></i>이벤트 수신 대기 중</span>
+        <span class="ch">실시간 · 재생</span>
+      </div>
+      <div class="term-body">
+        <div class="rail"></div>
+        <div class="slot"><i class="tick"></i><div class="ph"></div></div>
+        <div class="slot"><i class="tick"></i><div class="ph"></div></div>
+        <div class="slot"><i class="tick"></i><div class="ph"></div></div>
+      </div>
+      <div class="term-foot">
+        <p>기록된 변경이 없습니다.</p>
+        <p class="sub">변경이 없을 때 침묵하는 것이 이 시스템의 기본 동작입니다.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 버블 논쟁 모니터</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EEF1F3;
+  --card:#FFFFFF;
+  --ink:#16202B;
+  --ink-2:#5B6B79;
+  --ink-3:#93A1AC;
+  --rule:#D6DEE3;
+  --rule-2:#BCC7CF;
+  --bubble:#7C6FA0;
+  --bubble-bg:#EDEAF3;
+  --counter:#3B82A6;
+  --counter-bg:#E0F2FE;
+  --refuted:#4B5563;
+  --refuted-bg:#F3F4F6;
+  --confirmed:#EF4444;
+  --confirmed-bg:#FEE2E2;
+  --undetermined:#D1D5DB;
+  --undetermined-bg:#F9FAFB;
+  --sans:"IBM Plex Sans KR",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:300;line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:880px;margin:0 auto;padding:0 24px 96px}
+
+.bar{display:flex;justify-content:space-between;align-items:center;gap:16px;
+     padding:20px 0;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.bar .name{font-size:13px;font-weight:400;letter-spacing:.01em}
+.bar .update{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+
+.hero{padding:80px 0 44px;max-width:600px}
+h1{font-size:clamp(28px,5.5vw,42px);font-weight:200;line-height:1.3;
+     letter-spacing:-.02em;margin-bottom:16px}
+.hero-desc{font-size:16px;color:var(--ink-2);margin-bottom:8px}
+.hero-detail{font-size:13px;color:var(--ink-3)}
+
+.summary{display:flex;gap:32px;padding:24px 0;margin-bottom:48px;flex-wrap:wrap}
+.summary-item{flex:1;min-width:140px}
+.summary-label{font-size:12px;color:var(--ink-3);margin-bottom:4px}
+.summary-value{font-family:var(--mono);font-size:24px;font-weight:400;color:var(--ink)}
+
+.side-section{margin-bottom:64px}
+.side-header{margin-bottom:24px}
+.side-header h1{font-size:18px;font-weight:400;color:var(--ink);letter-spacing:-.01em;
+     padding-bottom:12px;border-bottom:2px solid var(--rule-2)}
+
+.crux{background:var(--card);border:1px solid var(--rule);margin-bottom:24px}
+.crux-head{padding:20px 24px;border-bottom:1px solid var(--rule);background:var(--paper)}
+.crux-head h2{font-size:14px;font-weight:500;color:var(--ink)}
+.crux-head .meta{font-size:11px;color:var(--ink-3);margin-top:4px}
+
+.row{display:grid;grid-template-columns:56px 1fr 120px;gap:16px;align-items:center;
+     padding:20px 24px;border-bottom:1px solid var(--rule)}
+.row:last-child{border-bottom:none}
+
+.side{font-family:var(--mono);font-size:10px;font-weight:500;
+     padding:4px 8px;border-radius:2px;text-align:center;letter-spacing:.02em}
+.side.bubble{background:var(--bubble-bg);color:var(--bubble)}
+.side.counter{background:var(--counter-bg);color:var(--counter)}
+
+.claim{font-size:13px;line-height:1.6;color:var(--ink)}
+.pid{font-family:var(--mono);font-size:10px;color:var(--ink-3);margin-right:8px}
+.claim-value{font-family:var(--mono);font-size:11px;color:var(--ink-2);margin-top:4px}
+
+.mark{font-family:var(--mono);font-size:11px;padding:6px 12px;
+     border-radius:2px;text-align:center;white-space:nowrap}
+.mark.refuted{background:var(--refuted-bg);color:var(--refuted);border:1px solid var(--rule)}
+.mark.confirmed{background:var(--confirmed-bg);color:var(--confirmed);border:1px solid var(--confirmed)}
+.mark.undetermined{background:var(--undetermined-bg);color:var(--undetermined);border:1px dashed var(--undetermined)}
+.mark.undecidable{background:var(--paper);color:var(--ink-3);border:1px solid var(--rule-2)}
+
+.explainer{background:var(--card);border:1px solid var(--rule);padding:24px;margin-bottom:32px}
+.explainer h3{font-size:14px;font-weight:500;margin-bottom:12px}
+.explainer p{font-size:13px;color:var(--ink-2);line-height:1.7;margin-bottom:12px}
+.explainer p:last-child{margin-bottom:0}
+
+.ledger-section{margin-top:64px}
+.ledger-head{padding-bottom:12px;margin-bottom:24px;border-bottom:1px solid var(--rule-2)}
+.ledger-head h2{font-size:15px;font-weight:500}
+.ledger-empty{background:var(--card);border:1px solid var(--rule);padding:48px 24px;text-align:center}
+.ledger-empty p{font-size:13px;color:var(--ink-3);line-height:1.7}
+
+.row-details{padding:20px 24px;background:var(--paper);border-top:1px solid var(--rule);
+     display:grid;grid-template-columns:1fr 1fr;gap:24px}
+
+.evidence-box{background:var(--card);border:1px solid var(--rule);border-radius:4px;padding:16px}
+.evidence-title{font-size:12px;font-weight:500;color:var(--ink);margin-bottom:8px}
+.included-tickers-top{font-family:var(--mono);font-size:11px;font-weight:500;
+     color:var(--ink);background:var(--paper);padding:8px 10px;border-radius:2px;
+     margin-bottom:12px}
+.calc-steps{margin-bottom:8px}
+.calc-item{font-size:12px;color:var(--ink-2);padding:4px 0;display:flex;
+     justify-content:space-between;align-items:center;gap:8px}
+.calc-item.calc-result{font-weight:400;color:var(--ink);margin-top:8px;
+     padding-top:8px;border-top:1px solid var(--rule)}
+.calc-note{font-size:11px;color:var(--ink-3);padding:2px 0 2px 16px;
+     font-family:var(--mono)}
+.calc-value{font-family:var(--mono);font-weight:400;color:var(--ink);flex-shrink:0}
+.calc-value.calc-highlight{font-size:14px;font-weight:500;color:var(--bubble)}
+.calc-explanation{font-size:11px;color:var(--ink-3);font-style:italic;
+     padding:8px;background:var(--paper);border-radius:2px}
+.calc-warning{font-size:11px;color:var(--caution);font-weight:500;
+     padding:8px;background:var(--caution-bg);border:1px solid var(--caution);
+     border-radius:2px;margin-top:8px}
+.included-tickers{font-family:var(--mono);font-size:10px;color:var(--ink-3);
+     padding-top:8px;border-top:1px solid var(--rule);margin-top:8px}
+
+.time-series{background:var(--card);border:1px solid var(--rule);border-radius:4px;padding:16px}
+.ts-title{font-size:12px;font-weight:500;color:var(--ink);margin-bottom:12px}
+.ts-chart{display:flex;gap:8px;align-items:flex-end;height:120px;margin-bottom:12px;
+     padding:8px;background:var(--paper);border-radius:2px}
+.ts-bar-wrapper{flex:1;display:flex;flex-direction:column;align-items:center;
+     justify-content:flex-end;height:100%}
+.ts-bar{width:100%;background:var(--refuted);border-radius:2px 2px 0 0;
+     display:flex;align-items:flex-start;justify-content:center;
+     padding-top:4px;min-height:20px;position:relative}
+.ts-bar.bar-refuted{background:var(--refuted)}
+.ts-bar.bar-confirmed{background:var(--confirmed)}
+.ts-bar.bar-undetermined{background:var(--undetermined)}
+.ts-bar-value{font-family:var(--mono);font-size:9px;color:var(--card);font-weight:500}
+.ts-bar-label{font-family:var(--mono);font-size:9px;color:var(--ink-3);margin-top:4px}
+.ts-summary{font-size:11px;color:var(--ink-2);text-align:center;
+     padding:8px;background:var(--paper);border-radius:2px}
+.ts-summary.ts-warning{background:var(--caution-bg);color:var(--caution);
+     border:1px solid var(--caution);font-weight:500}
+.ts-note{font-size:10px;color:var(--ink-3);text-align:center;
+     padding:6px 8px;font-style:italic;margin-top:4px}
+
+/* Overall Summary Panel */
+.overall-summary-panel{background:linear-gradient(135deg,#f8f9fa 0%,#e9ecef 100%);
+     border:2px solid var(--rule-2);border-radius:8px;padding:32px;margin-bottom:48px}
+.overall-summary-panel.risk-low{border-color:#10b981;background:linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%)}
+.overall-summary-panel.risk-medium{border-color:#f59e0b;background:linear-gradient(135deg,#fffbeb 0%,#fef3c7 100%)}
+.overall-summary-panel.risk-high{border-color:#ef4444;background:linear-gradient(135deg,#fef2f2 0%,#fee2e2 100%)}
+.panel-title{font-size:14px;font-weight:500;color:var(--ink-2);margin-bottom:12px}
+.panel-headline{font-size:28px;font-weight:400;color:var(--ink);margin-bottom:24px;line-height:1.3}
+.panel-categories{display:grid;gap:16px}
+.cat-item{display:flex;gap:12px;align-items:flex-start;padding:12px;
+     background:rgba(255,255,255,0.7);border-radius:4px}
+.cat-item.cat-good{background:rgba(16,185,129,0.1)}
+.cat-item.cat-warning{background:rgba(245,158,11,0.1)}
+.cat-item.cat-concern{background:rgba(239,68,68,0.1)}
+.cat-icon{font-size:20px;line-height:1}
+.cat-content{flex:1}
+.cat-label{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:4px}
+.cat-desc{font-size:12px;color:var(--ink-2);line-height:1.5}
+
+/* Category Cards */
+.category-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+     gap:24px;margin-bottom:48px}
+.category-card{background:var(--card);border:1px solid var(--rule);border-radius:8px;
+     padding:24px;position:relative}
+.category-card.card-good{border-left:4px solid #10b981}
+.category-card.card-warning{border-left:4px solid #f59e0b}
+.category-card.card-concern{border-left:4px solid #ef4444}
+.card-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.card-status-icon{font-size:24px}
+.card-title{font-size:16px;font-weight:500;color:var(--ink)}
+.card-summary{font-size:14px;font-weight:400;color:var(--ink);margin-bottom:12px}
+.card-interpretation{font-size:13px;color:var(--ink-2);line-height:1.6;margin-bottom:16px}
+.card-metrics{margin-bottom:16px}
+.metric-item{display:flex;justify-content:space-between;align-items:center;
+     padding:8px 12px;background:var(--paper);border-radius:4px;margin-bottom:8px}
+.metric-item:last-child{margin-bottom:0}
+.metric-item.metric-good{background:rgba(16,185,129,0.1)}
+.metric-item.metric-concern{background:rgba(239,68,68,0.1)}
+.metric-label{font-size:12px;color:var(--ink-2)}
+.metric-value{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink)}
+.card-toggle{width:100%;padding:10px;background:var(--paper);border:1px solid var(--rule);
+     border-radius:4px;font-size:13px;color:var(--ink-2);cursor:pointer;
+     transition:all 0.2s ease}
+.card-toggle:hover{background:var(--rule);color:var(--ink)}
+.card-toggle:active{transform:translateY(1px)}
+
+/* Detail Sections (collapsible) */
+.detail-section{transition:opacity 0.3s ease,max-height 0.3s ease}
+.detail-section[style*="display: none"]{max-height:0;overflow:hidden;opacity:0}
+
+@media (max-width:720px){
+  .hero{padding:52px 0 36px}
+  .row{grid-template-columns:1fr;gap:12px}
+  .side{justify-self:start}
+  .mark{justify-self:start}
+  .row-details{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:no-preference){
+  .hero>*{animation:rise .5s cubic-bezier(.2,.6,.2,1) backwards}
+  .hero>*:nth-child(2){animation-delay:.06s}
+  .hero>*:nth-child(3){animation-delay:.12s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="bar">
+    <span class="name">AI 버블 논쟁 모니터</span>
+    <span class="update">업데이트: 2026-09-06</span>
+  </header>
+
+  <section class="hero">
+    <h1>AI 투자가 버블인지 검증합니다</h1>
+    <p class="hero-desc">양쪽 주장을 재무 데이터로 검증하여 사실 관계를 추적합니다</p>
+    <p class="hero-detail">SEC 공시 데이터 기반 · 분기별 업데이트</p>
+  </section>
+
+  <div class="summary">
+    <div class="summary-item">
+      <div class="summary-label">추적 중인 쟁점</div>
+      <div class="summary-value">1</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-label">등록된 전제</div>
+      <div class="summary-value">8</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-label">판정 완료</div>
+      <div class="summary-value">8</div>
+    </div>
+  </div>
+
+  <div class="explainer">
+    <h3>💡 이 모니터는 무엇을 하나요?</h3>
+    <p><strong>"AI 투자가 버블이다"</strong>라는 주장이 있습니다. 빅테크 기업들이 AI 인프라에 과도하게 투자하고 있고, 이것이 지속 가능하지 않다는 우려입니다.</p>
+    <p>이 모니터는 그 주장을 구성하는 <strong>개별 전제들을 하나씩 검증</strong>합니다. 예를 들어 "투자가 매출보다 빠르게 증가한다", "자체 수익으로 감당하지 못한다" 같은 주장들을 SEC 공시 데이터로 확인합니다.</p>
+    <p><strong>반증됨</strong>은 데이터가 그 주장을 뒷받침하지 않는다는 뜻입니다. <strong>확인됨</strong>은 데이터가 주장과 일치한다는 뜻입니다.</p>
+  </div>
+
+  <div class="overall-summary-panel risk-medium">
+    <div class="panel-title">🎯 종합 판단</div>
+    <div class="panel-headline">AI 투자 버블 가능성: 중간</div>
+    <div class="panel-categories">
+      <div class="cat-item cat-good">
+        <div class="cat-icon">✓</div>
+        <div class="cat-content">
+          <div class="cat-label">재무 건전성</div>
+          <div class="cat-desc">하이퍼스케일러들은 AI Capex를 자체 현금흐름으로 충분히 감당</div>
+        </div>
+      </div>
+      <div class="cat-item cat-warning">
+        <div class="cat-icon">⚠️</div>
+        <div class="cat-content">
+          <div class="cat-label">수요 정당화</div>
+          <div class="cat-desc">GPU 가격 파워는 유지되지만 전체 매출 성장은 투자 대비 부족</div>
+        </div>
+      </div>
+      <div class="cat-item cat-concern">
+        <div class="cat-icon">✗</div>
+        <div class="cat-content">
+          <div class="cat-label">구조적 리스크</div>
+          <div class="cat-desc">구매 약정이 META에 집중되며 규모도 급증하는 구조적 변화</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="category-cards">
+    <div class="category-card card-good" data-category="P-A">
+      <div class="card-header">
+        <div class="card-status-icon">✓</div>
+        <div class="card-title">재무 건전성 (P-A)</div>
+      </div>
+      <div class="card-summary">4개 분기 연속 우수</div>
+      <div class="card-interpretation">하이퍼스케일러들은 AI Capex를 자체 현금흐름으로 충분히 감당</div>
+      <div class="card-metrics">
+        <div class="metric-item metric-good">
+          <span class="metric-label">OCF 대비 Capex:</span>
+          <span class="metric-value">43.5%</span>
+        </div>
+        <div class="metric-item metric-good">
+          <span class="metric-label">자금 초과분:</span>
+          <span class="metric-value">매출의 25.4%</span>
+        </div>
+      </div>
+      <button class="card-toggle" onclick="toggleCategory('P-A')">상세 보기 ▼</button>
+    </div>
+    <div class="category-card card-warning" data-category="P-B">
+      <div class="card-header">
+        <div class="card-status-icon">⚠️</div>
+        <div class="card-title">수요 정당화 (P-B)</div>
+      </div>
+      <div class="card-summary">혼재된 신호</div>
+      <div class="card-interpretation">GPU 가격 파워는 유지되지만 전체 매출 성장은 투자 대비 부족</div>
+      <div class="card-metrics">
+        <div class="metric-item metric-good">
+          <span class="metric-label">NVIDIA 마진:</span>
+          <span class="metric-value">+5.5%p</span>
+        </div>
+        <div class="metric-item metric-concern">
+          <span class="metric-label">매출/Capex 비율:</span>
+          <span class="metric-value">0.36x</span>
+        </div>
+      </div>
+      <button class="card-toggle" onclick="toggleCategory('P-B')">상세 보기 ▼</button>
+    </div>
+    <div class="category-card card-concern" data-category="P-D">
+      <div class="card-header">
+        <div class="card-status-icon">✗</div>
+        <div class="card-title">구조적 지표 (P-D)</div>
+      </div>
+      <div class="card-summary">집중도 증가 주시 필요</div>
+      <div class="card-interpretation">구매 약정이 META에 집중되며 규모도 급증하는 구조적 변화</div>
+      <div class="card-metrics">
+        <div class="metric-item metric-concern">
+          <span class="metric-label">META 점유율:</span>
+          <span class="metric-value">83.9%</span>
+        </div>
+        <div class="metric-item metric-concern">
+          <span class="metric-label">약정/매출 비율:</span>
+          <span class="metric-value">84.4%</span>
+        </div>
+      </div>
+      <button class="card-toggle" onclick="toggleCategory('P-D')">상세 보기 ▼</button>
+    </div>
+  </div>
+
+
+
+  <div class="side-section detail-section" data-category="P-A" style="display: none;">
+    <div class="side-header">
+      <h1>버블 우려</h1>
+    </div>
+    <section class="crux">
+      <div class="crux-head">
+        <h2>반도체 자금 조달</h2>
+        <div class="meta">1/1개 전제 판정 완료</div>
+      </div>
+      <div class="row">
+        <span class="side bubble">버블</span>
+        <div class="claim">
+          <div>반도체 기업들도 자체 수익으로 Capex를 감당하지 못한다</div>
+          <div class="claim-value">자체 수익으로 감당 가능 (여유 53%)</div>
+        </div>
+        <span class="mark refuted">반증됨</span>
+      </div>
+      <div class="row-details">
+<div class="evidence-box">
+  <div class="evidence-title">📊 반도체 5개사 계산 근거</div>
+  <div class="included-tickers-top">대상: NVDA, AMD, AVGO, INTC, QCOM</div>
+  <div class="calc-steps">
+    <div class="calc-item">합산 매출: <span class="calc-value">$129.3B</span></div>
+    <div class="calc-item">자금 갭 (OCF - Capex): <span class="calc-value">$-69.0B</span></div>
+    <div class="calc-note">→ OCF가 Capex보다 $69.0B 많음 (여유)</div>
+    <div class="calc-item calc-result">→ Self-Funding 비율: <span class="calc-value calc-highlight">-53.3%</span></div>
+    <div class="calc-note">= 자금 갭 / 매출 = $-69.0B / $129.3B</div>
+  </div>
+  <div class="calc-explanation">✓ 음수 = 자체 조달 가능 (OCF > Capex)</div>
+</div>
+<div class="time-series">
+  <div class="ts-title">📈 최근 추이</div>
+  <div class="ts-chart">
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 45.881367751052274%">
+        <span class="ts-bar-value">27%</span>
+      </div>
+      <div class="ts-bar-label">'24Q3</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 59.33509664859139%">
+        <span class="ts-bar-value">35%</span>
+      </div>
+      <div class="ts-bar-label">'24Q4</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 56.744703906173285%">
+        <span class="ts-bar-value">33%</span>
+      </div>
+      <div class="ts-bar-label">'25Q1</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 84.08759663464119%">
+        <span class="ts-bar-value">49%</span>
+      </div>
+      <div class="ts-bar-label">'25Q2</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 77.51944940641856%">
+        <span class="ts-bar-value">45%</span>
+      </div>
+      <div class="ts-bar-label">'25Q3</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 71.6044457303066%">
+        <span class="ts-bar-value">42%</span>
+      </div>
+      <div class="ts-bar-label">'25Q4</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 81.57953638203578%">
+        <span class="ts-bar-value">48%</span>
+      </div>
+      <div class="ts-bar-label">'26Q1</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 100.0%">
+        <span class="ts-bar-value">59%</span>
+      </div>
+      <div class="ts-bar-label">'26Q2</div>
+    </div>
+  </div>
+  <div class="ts-summary">✓ 8분기 연속 반증</div>
+</div>
+      </div>
+    </section>
+
+    <section class="crux">
+      <div class="crux-head">
+        <h2>빅테크 자금 조달</h2>
+        <div class="meta">1/1개 전제 판정 완료</div>
+      </div>
+      <div class="row">
+        <span class="side bubble">버블</span>
+        <div class="claim">
+          <div>빅테크 기업들이 자체 수익으로 AI Capex를 감당하지 못한다</div>
+          <div class="claim-value">자체 수익으로 감당 가능 (여유 25%)</div>
+        </div>
+        <span class="mark refuted">반증됨</span>
+      </div>
+      <div class="row-details">
+<div class="evidence-box">
+  <div class="evidence-title">📊 빅테크 6개사 계산 근거</div>
+  <div class="included-tickers-top">대상: NVDA, MSFT, GOOGL, META, AMZN, AAPL</div>
+  <div class="calc-steps">
+    <div class="calc-item">합산 매출: <span class="calc-value">$513.2B</span></div>
+    <div class="calc-item">자금 갭 (OCF - Capex): <span class="calc-value">$-130.5B</span></div>
+    <div class="calc-note">→ OCF가 Capex보다 $130.5B 많음 (여유)</div>
+    <div class="calc-item calc-result">→ Self-Funding 비율: <span class="calc-value calc-highlight">-25.4%</span></div>
+    <div class="calc-note">= 자금 갭 / 매출 = $-130.5B / $513.2B</div>
+  </div>
+  <div class="calc-explanation">✓ 음수 = 자체 조달 가능 (OCF > Capex)</div>
+</div>
+<div class="time-series">
+  <div class="ts-title">📈 최근 추이</div>
+  <div class="ts-chart">
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 38.95891167471741%">
+        <span class="ts-bar-value">28%</span>
+      </div>
+      <div class="ts-bar-label">'24Q3</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 57.172956211553505%">
+        <span class="ts-bar-value">41%</span>
+      </div>
+      <div class="ts-bar-label">'24Q4</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 44.108219639265634%">
+        <span class="ts-bar-value">31%</span>
+      </div>
+      <div class="ts-bar-label">'25Q1</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 92.46523793185239%">
+        <span class="ts-bar-value">66%</span>
+      </div>
+      <div class="ts-bar-label">'25Q2</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 37.06865750187768%">
+        <span class="ts-bar-value">26%</span>
+      </div>
+      <div class="ts-bar-label">'25Q3</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 53.425886937879085%">
+        <span class="ts-bar-value">38%</span>
+      </div>
+      <div class="ts-bar-label">'25Q4</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 63.41026020705806%">
+        <span class="ts-bar-value">45%</span>
+      </div>
+      <div class="ts-bar-label">'26Q1</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 100.0%">
+        <span class="ts-bar-value">71%</span>
+      </div>
+      <div class="ts-bar-label">'26Q2</div>
+    </div>
+  </div>
+  <div class="ts-summary">✓ 8분기 연속 반증</div>
+</div>
+      </div>
+    </section>
+
+    <section class="crux">
+      <div class="crux-head">
+        <h2>투자 효율성</h2>
+        <div class="meta">1/1개 전제 판정 완료</div>
+      </div>
+      <div class="row">
+        <span class="side bubble">버블</span>
+        <div class="claim">
+          <div>Capex 성장률이 매출 성장률을 초과한다</div>
+          <div class="claim-value">매출 성장 ≥ 투자 성장 (균형)</div>
+        </div>
+        <span class="mark refuted">반증됨</span>
+      </div>
+      <div class="row-details">
+<div class="evidence-box">
+  <div class="evidence-title">📊 하이퍼스케일러 6개사 계산 근거</div>
+  <div class="included-tickers-top">대상: NVDA, MSFT, GOOGL, META, AMZN, AAPL</div>
+  <div class="calc-steps">
+    <div class="calc-item">Capex 성장률: <span class="calc-value">-31.5%</span></div>
+    <div class="calc-item">매출 성장률: <span class="calc-value">9.3%</span></div>
+    <div class="calc-item calc-result">→ 성장률 격차: <span class="calc-value calc-highlight">-40.8%p</span></div>
+    <div class="calc-note">= -31.5% - (9.3%) = -40.8%p</div>
+  </div>
+  <div class="calc-explanation">✓ 음수(-) = 매출이 투자보다 빠름 (균형)</div>
+</div>
+<div class="time-series">
+  <div class="ts-title">📈 최근 추이</div>
+  <div class="ts-chart">
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 94.11216875206307%">
+        <span class="ts-bar-value">5%p</span>
+      </div>
+      <div class="ts-bar-label">'24Q3</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 35.51565524524564%">
+        <span class="ts-bar-value">2%p</span>
+      </div>
+      <div class="ts-bar-label">'24Q4</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 100.0%">
+        <span class="ts-bar-value">5%p</span>
+      </div>
+      <div class="ts-bar-label">'25Q1</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 57.76278502773528%">
+        <span class="ts-bar-value">3%p</span>
+      </div>
+      <div class="ts-bar-label">'25Q2</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 74.8536458794045%">
+        <span class="ts-bar-value">4%p</span>
+      </div>
+      <div class="ts-bar-label">'25Q3</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 0.0%">
+        <span class="ts-bar-value">0%p</span>
+      </div>
+      <div class="ts-bar-label">'25Q4</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 0.0%">
+        <span class="ts-bar-value">0%p</span>
+      </div>
+      <div class="ts-bar-label">'26Q1</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 39.7066462333087%">
+        <span class="ts-bar-value">2%p</span>
+      </div>
+      <div class="ts-bar-label">'26Q2</div>
+    </div>
+  </div>
+  <div class="ts-summary">✓ 8분기 연속 반증</div>
+</div>
+      </div>
+    </section>
+
+    <section class="crux">
+      <div class="crux-head">
+        <h2>현금흐름 압박</h2>
+        <div class="meta">1/1개 전제 판정 완료</div>
+      </div>
+      <div class="row">
+        <span class="side bubble">버블</span>
+        <div class="claim">
+          <div>Capex가 영업현금흐름 대비 역대 최고 수준이다</div>
+          <div class="claim-value">OCF의 43% 투자 중</div>
+        </div>
+        <span class="mark refuted">반증됨</span>
+      </div>
+      <div class="row-details">
+<div class="evidence-box">
+  <div class="evidence-title">📊 하이퍼스케일러 6개사 계산 근거</div>
+  <div class="included-tickers-top">대상: NVDA, MSFT, GOOGL, META, AMZN, AAPL</div>
+  <div class="calc-steps">
+    <div class="calc-item">합산 OCF (영업현금흐름): <span class="calc-value">$231.0B</span></div>
+    <div class="calc-item">합산 Capex (설비투자): <span class="calc-value">$100.5B</span></div>
+    <div class="calc-item calc-result">→ Capex/OCF 비율: <span class="calc-value calc-highlight">43.5%</span></div>
+  </div>
+  <div class="calc-explanation">80% 미만 = 안전</div>
+</div>
+<div class="time-series">
+  <div class="ts-title">📈 최근 추이</div>
+  <div class="ts-chart">
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 83.26531456154896%">
+        <span class="ts-bar-value">32%</span>
+      </div>
+      <div class="ts-bar-label">'24Q3</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 64.66011413578794%">
+        <span class="ts-bar-value">25%</span>
+      </div>
+      <div class="ts-bar-label">'24Q4</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 83.96667384889086%">
+        <span class="ts-bar-value">32%</span>
+      </div>
+      <div class="ts-bar-label">'25Q1</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 52.81330981497489%">
+        <span class="ts-bar-value">20%</span>
+      </div>
+      <div class="ts-bar-label">'25Q2</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 93.46886278337895%">
+        <span class="ts-bar-value">36%</span>
+      </div>
+      <div class="ts-bar-label">'25Q3</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 86.84936753601707%">
+        <span class="ts-bar-value">34%</span>
+      </div>
+      <div class="ts-bar-label">'25Q4</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 100.0%">
+        <span class="ts-bar-value">39%</span>
+      </div>
+      <div class="ts-bar-label">'26Q1</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 63.876855755223474%">
+        <span class="ts-bar-value">25%</span>
+      </div>
+      <div class="ts-bar-label">'26Q2</div>
+    </div>
+  </div>
+  <div class="ts-summary">✓ 8분기 연속 반증</div>
+</div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="side-section detail-section" data-category="P-B" style="display: none;">
+    <div class="side-header">
+      <h1>반론</h1>
+    </div>
+    <section class="crux">
+      <div class="crux-head">
+        <h2>매출 검증</h2>
+        <div class="meta">1/1개 전제 판정 완료</div>
+      </div>
+      <div class="row">
+        <span class="side counter">반론</span>
+        <div class="claim">
+          <div>AI 인프라 매출 성장이 Capex 수준을 정당화한다</div>
+          <div class="claim-value">매출 성장이 투자에 미달 (비율 0.36x)</div>
+        </div>
+        <span class="mark refuted">반증됨</span>
+      </div>
+      <div class="row-details">
+<div class="evidence-box">
+  <div class="evidence-title">📊 하이퍼스케일러 6개사 계산 근거</div>
+  <div class="included-tickers-top">대상: NVDA, MSFT, GOOGL, META, AMZN, AAPL</div>
+  <div class="calc-steps">
+    <div class="calc-item">매출 성장률 (YoY): <span class="calc-value">+26.0%</span></div>
+    <div class="calc-item">Capex 성장률 (YoY): <span class="calc-value">+72.5%</span></div>
+    <div class="calc-item calc-result">→ 정당화 비율: <span class="calc-value calc-highlight">0.36x</span></div>
+    <div class="calc-note">= 26.0% / 72.5% = 0.36x</div>
+  </div>
+  <div class="calc-explanation">✗ 비율 < 0.7 = 매출 성장이 투자에 미달</div>
+</div>
+<div class="time-series">
+  <div class="ts-title">📈 최근 추이</div>
+  <div class="ts-chart">
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 100.0%">
+        <span class="ts-bar-value">0.51</span>
+      </div>
+      <div class="ts-bar-label">'24Q3</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 90.39262032009981%">
+        <span class="ts-bar-value">0.46</span>
+      </div>
+      <div class="ts-bar-label">'24Q4</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 70.36450491320149%">
+        <span class="ts-bar-value">0.36</span>
+      </div>
+      <div class="ts-bar-label">'25Q1</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 67.40311538546247%">
+        <span class="ts-bar-value">0.35</span>
+      </div>
+      <div class="ts-bar-label">'25Q2</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 52.363068138104886%">
+        <span class="ts-bar-value">0.27</span>
+      </div>
+      <div class="ts-bar-label">'25Q3</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 53.724795244873306%">
+        <span class="ts-bar-value">0.28</span>
+      </div>
+      <div class="ts-bar-label">'25Q4</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 68.6804988510504%">
+        <span class="ts-bar-value">0.35</span>
+      </div>
+      <div class="ts-bar-label">'26Q1</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 69.65253189644933%">
+        <span class="ts-bar-value">0.36</span>
+      </div>
+      <div class="ts-bar-label">'26Q2</div>
+    </div>
+  </div>
+  <div class="ts-summary">✓ 8분기 연속 반증</div>
+</div>
+      </div>
+    </section>
+
+    <section class="crux">
+      <div class="crux-head">
+        <h2>수요 지표</h2>
+        <div class="meta">1/1개 전제 판정 완료</div>
+      </div>
+      <div class="row">
+        <span class="side counter">반론</span>
+        <div class="claim">
+          <div>GPU 가격 결정력이 지속적 수요를 나타낸다</div>
+          <div class="claim-value">마진 확대 (+5.5%p) - 가격 파워 유지</div>
+        </div>
+        <span class="mark confirmed">확인됨</span>
+      </div>
+      <div class="row-details">
+<div class="evidence-box">
+  <div class="evidence-title">📊 NVIDIA 계산 근거</div>
+  <div class="included-tickers-top">대상: NVDA</div>
+  <div class="calc-steps">
+    <div class="calc-item">현재 영업이익률: <span class="calc-value">62.0%</span></div>
+    <div class="calc-item">1년 전 영업이익률: <span class="calc-value">56.5%</span></div>
+    <div class="calc-item calc-result">→ 마진 변화: <span class="calc-value calc-highlight">+5.5%p</span></div>
+  </div>
+  <div class="calc-explanation">✓ 마진 확대 = GPU 가격 결정력 유지</div>
+</div>
+<div class="time-series">
+  <div class="ts-title">📈 최근 추이</div>
+  <div class="ts-chart">
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-confirmed" style="height: 13.968561492883092%">
+        <span class="ts-bar-value">0.04</span>
+      </div>
+      <div class="ts-bar-label">'24Q3</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-confirmed" style="height: 2.0320142142393465%">
+        <span class="ts-bar-value">0.01</span>
+      </div>
+      <div class="ts-bar-label">'24Q4</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 50.35834103489152%">
+        <span class="ts-bar-value">-0.15</span>
+      </div>
+      <div class="ts-bar-label">'25Q1</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-confirmed" style="height: 4.401602475847237%">
+        <span class="ts-bar-value">0.01</span>
+      </div>
+      <div class="ts-bar-label">'25Q2</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-confirmed" style="height: 3.2478292929311285%">
+        <span class="ts-bar-value">0.01</span>
+      </div>
+      <div class="ts-bar-label">'25Q3</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-confirmed" style="height: 23.889852152223174%">
+        <span class="ts-bar-value">0.07</span>
+      </div>
+      <div class="ts-bar-label">'25Q4</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-confirmed" style="height: 100.0%">
+        <span class="ts-bar-value">0.29</span>
+      </div>
+      <div class="ts-bar-label">'26Q1</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-confirmed" style="height: 19.086367196274832%">
+        <span class="ts-bar-value">0.06</span>
+      </div>
+      <div class="ts-bar-label">'26Q2</div>
+    </div>
+  </div>
+  <div class="ts-summary">1/8분기 반증</div>
+</div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="side-section detail-section" data-category="P-D" style="display: none;">
+    <div class="side-header">
+      <h1>구조적 지표</h1>
+    </div>
+    <section class="crux">
+      <div class="crux-head">
+        <h2>약정 집중도</h2>
+        <div class="meta">2/2개 전제 판정 완료</div>
+      </div>
+      <div class="row">
+        <span class="side neutral">구조</span>
+        <div class="claim">
+          <div>구매 약정이 소수 공급업체에 집중되어 있다</div>
+          <div class="claim-value">HHI 7167 - 높은 집중도</div>
+        </div>
+        <span class="mark confirmed">확인됨</span>
+      </div>
+      <div class="row-details">
+<div class="evidence-box">
+  <div class="evidence-title">📊 하이퍼스케일러 6개사 계산 근거</div>
+  <div class="included-tickers-top">대상: NVDA, GOOGL, META, AMZN, AAPL</div>
+  <div class="calc-steps">
+    <div class="calc-item">총 약정: <span class="calc-value">$416.4B</span></div>
+    <div class="calc-item">META 점유율: <span class="calc-value">83.9%</span></div>
+    <div class="calc-item">NVDA 점유율: <span class="calc-value">11.0%</span></div>
+    <div class="calc-item">GOOGL 점유율: <span class="calc-value">1.8%</span></div>
+    <div class="calc-item calc-result">→ HHI: <span class="calc-value calc-highlight">7167</span></div>
+  </div>
+  <div class="calc-explanation">✗ 높은 집중도 (HHI 7167) = 공급망 집중 위험</div>
+</div>
+<div class="time-series">
+  <div class="ts-title">📈 최근 추이</div>
+  <div class="ts-chart">
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-confirmed" style="height: 47.74089173840068%">
+        <span class="ts-bar-value">3421.46</span>
+      </div>
+      <div class="ts-bar-label">'24Q3</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-confirmed" style="height: 49.07160852996317%">
+        <span class="ts-bar-value">3516.83</span>
+      </div>
+      <div class="ts-bar-label">'24Q4</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-confirmed" style="height: 48.77810192565221%">
+        <span class="ts-bar-value">3495.80</span>
+      </div>
+      <div class="ts-bar-label">'25Q1</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-confirmed" style="height: 50.26503588276087%">
+        <span class="ts-bar-value">3602.36</span>
+      </div>
+      <div class="ts-bar-label">'25Q2</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-confirmed" style="height: 58.1230044356349%">
+        <span class="ts-bar-value">4165.52</span>
+      </div>
+      <div class="ts-bar-label">'25Q3</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-confirmed" style="height: 68.76252339354623%">
+        <span class="ts-bar-value">4928.03</span>
+      </div>
+      <div class="ts-bar-label">'25Q4</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-confirmed" style="height: 88.4093271130579%">
+        <span class="ts-bar-value">6336.06</span>
+      </div>
+      <div class="ts-bar-label">'26Q1</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-confirmed" style="height: 100.0%">
+        <span class="ts-bar-value">7166.73</span>
+      </div>
+      <div class="ts-bar-label">'26Q2</div>
+    </div>
+  </div>
+  <div class="ts-summary">✗ 8분기 연속 확인</div>
+</div>
+      </div>
+      <div class="row">
+        <span class="side neutral">구조</span>
+        <div class="claim">
+          <div>장기 약정이 역사적 기준을 초과한다</div>
+          <div class="claim-value">약정이 매출의 84.4% - 높은 수준</div>
+        </div>
+        <span class="mark confirmed">확인됨</span>
+      </div>
+      <div class="row-details">
+<div class="evidence-box">
+  <div class="evidence-title">📊 하이퍼스케일러 6개사 계산 근거</div>
+  <div class="included-tickers-top">대상: NVDA, GOOGL, META, AMZN, AAPL</div>
+  <div class="calc-steps">
+    <div class="calc-item">총 구매 약정: <span class="calc-value">$416.4B</span></div>
+    <div class="calc-item">총 매출: <span class="calc-value">$493.2B</span></div>
+    <div class="calc-item calc-result">→ 비율: <span class="calc-value calc-highlight">84.4%</span></div>
+  </div>
+  <div class="calc-explanation">✗ 약정이 매출의 84.4% = 역사적 기준 초과</div>
+</div>
+<div class="time-series">
+  <div class="ts-title">📈 최근 추이</div>
+  <div class="ts-chart">
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 30.552540504105842%">
+        <span class="ts-bar-value">0.26</span>
+      </div>
+      <div class="ts-bar-label">'24Q3</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 28.377388236750456%">
+        <span class="ts-bar-value">0.24</span>
+      </div>
+      <div class="ts-bar-label">'24Q4</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 29.51585203025435%">
+        <span class="ts-bar-value">0.25</span>
+      </div>
+      <div class="ts-bar-label">'25Q1</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-refuted" style="height: 27.847939138036747%">
+        <span class="ts-bar-value">0.24</span>
+      </div>
+      <div class="ts-bar-label">'25Q2</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-undetermined" style="height: 41.38319246948089%">
+        <span class="ts-bar-value">0.35</span>
+      </div>
+      <div class="ts-bar-label">'25Q3</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-undetermined" style="height: 49.833169718102276%">
+        <span class="ts-bar-value">0.42</span>
+      </div>
+      <div class="ts-bar-label">'25Q4</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-confirmed" style="height: 80.20368762396095%">
+        <span class="ts-bar-value">0.68</span>
+      </div>
+      <div class="ts-bar-label">'26Q1</div>
+    </div>
+    <div class="ts-bar-wrapper">
+      <div class="ts-bar bar-confirmed" style="height: 100.0%">
+        <span class="ts-bar-value">0.84</span>
+      </div>
+      <div class="ts-bar-label">'26Q2</div>
+    </div>
+  </div>
+  <div class="ts-summary">4분기 반증 / 2분기 미확정</div>
+</div>
+      </div>
+    </section>
+
+  </div>
+
+
+
+  <section class="ledger-section">
+    <div class="ledger-head">
+      <h2>변경 이력</h2>
+    </div>
+    <div class="ledger-empty">
+      <p>판정선이 확정되면 이곳에 상태 변경 기록이 표시됩니다</p>
+      <p style="margin-top:8px;font-size:12px">변경이 없을 때 침묵하는 것이 이 시스템의 기본 동작입니다</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+function toggleCategory(categoryId) {
+  // Find all detail sections with this category
+  const detailSections = document.querySelectorAll(`.detail-section[data-category="${categoryId}"]`);
+
+  // Find the button that was clicked
+  const button = event.target;
+
+  detailSections.forEach(section => {
+    if (section.style.display === 'none' || !section.style.display) {
+      section.style.display = 'block';
+      button.textContent = '상세 숨기기 ▲';
+    } else {
+      section.style.display = 'none';
+      button.textContent = '상세 보기 ▼';
+    }
+  });
+}
+</script>
+</body>
+</html>

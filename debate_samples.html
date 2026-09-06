@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 버블 논쟁 - 20가지 아이디어 인터랙티브 쇼케이스</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-main: #0B0F17;
+  --bg-card: #151C28;
+  --bg-card-hover: #1E293B;
+  --border: #2A364F;
+  --border-light: #3B4B68;
+  --text-main: #F1F5F9;
+  --text-muted: #94A3B8;
+  --text-dim: #64748B;
+  
+  --bubble-red: #FF4757;
+  --bubble-bg: rgba(255, 71, 87, 0.12);
+  --bubble-border: rgba(255, 71, 87, 0.3);
+  
+  --fact-cyan: #00E5FF;
+  --fact-bg: rgba(0, 229, 255, 0.12);
+  --fact-border: rgba(0, 229, 255, 0.3);
+  
+  --accent-gold: #FFB142;
+  --accent-green: #2ED573;
+  --accent-purple: #A55EEA;
+  
+  --font-sans: 'IBM Plex Sans KR', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --font-display: 'Outfit', sans-serif;
+}
+
+html.light {
+  --bg-main: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F1F5F9;
+  --border: #E2E8F0;
+  --border-light: #CBD5E1;
+  --text-main: #0F172A;
+  --text-muted: #475569;
+  --text-dim: #94A3B8;
+  
+  --bubble-red: #E11D48;
+  --bubble-bg: #FFE4E6;
+  --bubble-border: #FDA4AF;
+  
+  --fact-cyan: #0284C7;
+  --fact-bg: #E0F2FE;
+  --fact-border: #7DD3FC;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* Header Bar */
+.top-header {
+  height: 64px;
+  background: rgba(21, 28, 40, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+}
+.brand-badge {
+  background: linear-gradient(135deg, var(--bubble-red), var(--fact-cyan));
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.btn-theme {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.btn-theme:hover { background: var(--bg-card-hover); border-color: var(--border-light); }
+
+/* Main Layout */
+.app-container {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 64px);
+}
+
+/* Sidebar Nav */
+.sidebar {
+  width: 320px;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.cat-group { display: flex; flex-direction: column; gap: 6px; }
+.cat-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+  padding: 4px 8px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+.nav-item:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-main);
+}
+.nav-item.active {
+  background: rgba(0, 229, 255, 0.08);
+  color: var(--fact-cyan);
+  border-color: var(--fact-border);
+  font-weight: 600;
+}
+.nav-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  opacity: 0.7;
+  min-width: 20px;
+}
+
+/* Content Area */
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.sample-meta {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+.sample-cat-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--fact-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+  display: inline-block;
+}
+.sample-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sample-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* Sample Interactive Canvas */
+.sample-canvas {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3);
+}
+
+/* Generic Sample Components Styling */
+.vs-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+.vs-badge.bubble { background: var(--bubble-bg); color: var(--bubble-red); border: 1px solid var(--bubble-border); }
+.vs-badge.fact { background: var(--fact-bg); color: var(--fact-cyan); border: 1px solid var(--fact-border); }
+
+/* Animation Utils */
+@keyframes pulseGlow {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+
+/* Sample 01: Tug of War */
+.tug-container { width: 100%; max-width: 680px; text-align: center; }
+.tug-scoreboard { display: flex; justify-content: space-between; font-size: 28px; font-family: var(--font-display); font-weight: 800; margin-bottom: 24px; }
+.tug-track { height: 16px; background: var(--border); border-radius: 8px; position: relative; margin: 30px 0; }
+.tug-rope { height: 100%; background: linear-gradient(90deg, var(--bubble-red), var(--fact-cyan)); border-radius: 8px; transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.tug-flag { position: absolute; top: -12px; width: 40px; height: 40px; background: #fff; border-radius: 50%; color: #000; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); transform: translateX(-50%); transition: left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.tug-btn-group { display: flex; justify-content: center; gap: 16px; margin-top: 24px; }
+.btn-action { padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.btn-bubble { background: var(--bubble-red); color: #fff; }
+.btn-fact { background: var(--fact-cyan); color: #000; }
+.btn-action:hover { opacity: 0.9; transform: translateY(-2px); }
+
+/* Sample 02: Courtroom */
+.court-container { width: 100%; max-width: 720px; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 24px; border: 1px solid var(--border); }
+.gavel-box { text-align: center; margin-bottom: 20px; }
+.gavel-icon { font-size: 48px; display: inline-block; transition: transform 0.2s; }
+.gavel-box.strike .gavel-icon { transform: rotate(-45deg); }
+.verdict-stamp { font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--accent-green); text-transform: uppercase; border: 2px solid var(--accent-green); padding: 6px 16px; border-radius: 8px; display: inline-block; margin-top: 8px; }
+.trial-rows { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+.trial-card { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--bg-card); border-radius: 8px; border-left: 4px solid var(--border); }
+.trial-card.prosecution { border-left-color: var(--bubble-red); }
+.trial-card.defense { border-left-color: var(--fact-cyan); }
+
+/* Sample 03: Split Screen */
+.split-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 760px; }
+.split-col { background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.split-col.bubble-side { border-top: 4px solid var(--bubble-red); }
+.split-col.fact-side { border-top: 4px solid var(--fact-cyan); }
+.split-card { background: var(--bg-card); padding: 14px; border-radius: 8px; margin-top: 12px; border: 1px solid var(--border); transition: all 0.2s; cursor: pointer; }
+.split-card:hover, .split-card.highlight { border-color: var(--accent-gold); transform: scale(1.02); }
+
+/* Sample 04: Balance Scale */
+.scale-wrapper { width: 100%; max-width: 500px; text-align: center; }
+.scale-beam { width: 100%; height: 8px; background: var(--border-light); border-radius: 4px; position: relative; margin: 40px 0 20px; transform-origin: center; transition: transform 0.6s ease; }
+.scale-pan { position: absolute; top: 0; width: 120px; height: 120px; border: 2px solid var(--border-light); border-radius: 0 0 60px 60px; background: rgba(255,255,255,0.03); display: flex; flex-direction: column; align-items: center; justify-content: center; transform: translateY(8px); }
+.scale-pan.left { left: 10px; }
+.scale-pan.right { right: 10px; }
+.scale-weight { font-family: var(--font-display); font-size: 22px; font-weight: 800; }
+
+/* Sample 05: Sports Scoreboard */
+.scoreboard-box { width: 100%; max-width: 640px; background: #000; border: 2px solid var(--accent-gold); border-radius: 12px; padding: 24px; font-family: var(--font-mono); }
+.sb-header { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 12px; color: var(--accent-gold); }
+.sb-teams { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: center; margin: 20px 0; text-align: center; }
+.sb-score { font-size: 48px; font-weight: 800; color: #fff; text-shadow: 0 0 10px var(--fact-cyan); }
+.sb-ticker { background: #111; color: var(--accent-green); padding: 8px 12px; border-radius: 4px; font-size: 12px; border: 1px dashed #333; }
+
+/* Sample 06: House Building */
+.house-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 700px; }
+.house-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+.house-icon { font-size: 48px; margin-bottom: 12px; }
+
+/* Sample 07: Highway */
+.highway-box { width: 100%; max-width: 680px; background: #1a1a1a; border-radius: 12px; padding: 24px; color: #fff; }
+.road-visual { height: 80px; background: #333; border-top: 4px dashed #fff; border-bottom: 4px dashed #fff; margin: 20px 0; display: flex; align-items: center; justify-content: space-around; font-size: 28px; }
+
+/* Sample 08: Time Machine */
+.tm-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 720px; }
+.tm-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.tm-card.year1999 { border-top: 4px solid var(--bubble-red); }
+.tm-card.year2026 { border-top: 4px solid var(--fact-cyan); }
+
+/* Sample 09: Household Budget */
+.budget-box { width: 100%; max-width: 600px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 28px; text-align: center; }
+.budget-slider { width: 100%; margin: 20px 0; }
+
+/* Sample 10: Thermometer */
+.thermo-box { display: flex; align-items: center; gap: 40px; background: var(--bg-card); padding: 32px; border-radius: 16px; border: 1px solid var(--border); }
+.thermo-tube { width: 32px; height: 240px; background: var(--border); border-radius: 16px; position: relative; overflow: hidden; display: flex; flex-direction: column-reverse; }
+.thermo-mercury { width: 100%; background: linear-gradient(to top, var(--accent-green), var(--accent-gold), var(--bubble-red)); height: 28%; transition: height 0.5s ease; }
+.thermo-readout { font-family: var(--font-display); font-size: 42px; font-weight: 800; color: var(--accent-green); }
+
+/* Sample 11: Quiz Simulator */
+.quiz-box { width: 100%; max-width: 600px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+.quiz-options { display: flex; gap: 16px; margin-top: 20px; }
+.quiz-btn { flex: 1; padding: 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card-hover); color: var(--text-main); font-weight: 600; cursor: pointer; }
+.quiz-btn:hover { border-color: var(--fact-cyan); }
+
+/* Sample 12: Scenario Slider */
+.scenario-box { width: 100%; max-width: 640px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 28px; text-align: center; }
+.scenario-meter { height: 20px; background: var(--border); border-radius: 10px; margin: 24px 0; overflow: hidden; }
+.scenario-fill { height: 100%; width: 25%; background: var(--accent-green); transition: all 0.3s; }
+
+/* Sample 13: Flip Card */
+.flip-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 100%; max-width: 640px; }
+.flip-card { height: 180px; perspective: 1000px; cursor: pointer; }
+.flip-inner { width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; position: relative; }
+.flip-card.flipped .flip-inner { transform: rotateY(180deg); }
+.flip-front, .flip-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border: 1px solid var(--border); }
+.flip-front { background: var(--bg-card); }
+.flip-back { background: var(--fact-bg); color: var(--fact-cyan); border-color: var(--fact-border); transform: rotateY(180deg); }
+
+/* Sample 14: Card Battle */
+.hero-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; max-width: 720px; }
+.hero-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; transition: transform 0.2s; }
+.hero-card:hover { transform: translateY(-4px); border-color: var(--fact-cyan); }
+.hero-avatar { font-size: 36px; margin-bottom: 8px; }
+
+/* Sample 15: Insta Story */
+.story-phone { width: 300px; height: 500px; background: #000; border-radius: 36px; border: 8px solid #222; overflow: hidden; position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 16px; color: #fff; }
+.story-bar { height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; margin-bottom: 12px; }
+.story-progress { height: 100%; width: 60%; background: #fff; }
+
+/* Sample 16: Decision Tree */
+.tree-box { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 16px; }
+.tree-node { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+.tree-node.active { border-color: var(--accent-green); background: rgba(46, 213, 115, 0.08); }
+
+/* Sample 17: Newspaper */
+.paper-box { width: 100%; max-width: 640px; background: #F4EAD5; color: #222; padding: 24px; border-radius: 4px; font-family: 'Times New Roman', serif; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+.paper-head { text-align: center; border-bottom: 2px solid #222; border-top: 2px solid #222; padding: 8px 0; margin-bottom: 16px; font-size: 28px; font-weight: bold; }
+
+/* Sample 18: Wave Chart */
+.wave-box { width: 100%; max-width: 640px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; text-align: center; }
+.wave-svg { width: 100%; height: 160px; }
+
+/* Sample 19: Score Matrix */
+.matrix-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; max-width: 680px; }
+.matrix-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+.matrix-score { font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--accent-green); }
+
+/* Sample 20: Weather */
+.weather-box { background: linear-gradient(135deg, #1E293B, #0F172A); border: 1px solid var(--border); border-radius: 20px; padding: 32px; width: 100%; max-width: 580px; text-align: center; }
+.weather-icon { font-size: 64px; margin-bottom: 12px; }
+
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="brand">
+    <span>AI BUBBLE MONITOR</span>
+    <span class="brand-badge">20 IDEAS SHOWCASE</span>
+  </div>
+  <div class="header-actions">
+    <button class="btn-theme" onclick="toggleTheme()">
+      <span id="themeIcon">🌙</span> <span id="themeText">다크 모드</span>
+    </button>
+  </div>
+</header>
+
+<div class="app-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="cat-group">
+      <div class="cat-title">Ⅰ. 시각적 대결 UI</div>
+      <div class="nav-item active" onclick="loadSample(1)">
+        <span class="nav-num">01</span> 줄다리기 다이내믹 게이지
+      </div>
+      <div class="nav-item" onclick="loadSample(2)">
+        <span class="nav-num">02</span> 법정 공방 모드
+      </div>
+      <div class="nav-item" onclick="loadSample(3)">
+        <span class="nav-num">03</span> 스플릿 스크린 카포
+      </div>
+      <div class="nav-item" onclick="loadSample(4)">
+        <span class="nav-num">04</span> 천칭 저울 UI
+      </div>
+      <div class="nav-item" onclick="loadSample(5)">
+        <span class="nav-num">05</span> 스포츠 전광판 중계
+      </div>
+    </div>
+
+    <div class="cat-group">
+      <div class="cat-title">Ⅱ. 비유 & 스토리텔링</div>
+      <div class="nav-item" onclick="loadSample(6)">
+        <span class="nav-num">06</span> 건물주 비유 카드
+      </div>
+      <div class="nav-item" onclick="loadSample(7)">
+        <span class="nav-num">07</span> 고속도로와 통행료
+      </div>
+      <div class="nav-item" onclick="loadSample(8)">
+        <span class="nav-num">08</span> 닷컴버블 타임머신
+      </div>
+      <div class="nav-item" onclick="loadSample(9)">
+        <span class="nav-num">09</span> 우리집 가계부 환산기
+      </div>
+      <div class="nav-item" onclick="loadSample(10)">
+        <span class="nav-num">10</span> 거품 온도계 & 신호등
+      </div>
+    </div>
+
+    <div class="cat-group">
+      <div class="cat-title">Ⅲ. 인터랙티브 & 참여형</div>
+      <div class="nav-item" onclick="loadSample(11)">
+        <span class="nav-num">11</span> 팩트체크 퀴즈 시뮬레이터
+      </div>
+      <div class="nav-item" onclick="loadSample(12)">
+        <span class="nav-num">12</span> 시나리오 슬라이더
+      </div>
+      <div class="nav-item" onclick="loadSample(13)">
+        <span class="nav-num">13</span> 소문 vs 공시 플립카드
+      </div>
+      <div class="nav-item" onclick="loadSample(14)">
+        <span class="nav-num">14</span> 빅테크 6대장 카드배틀
+      </div>
+      <div class="nav-item" onclick="loadSample(15)">
+        <span class="nav-num">15</span> 인스타그램 스토리 모드
+      </div>
+    </div>
+
+    <div class="cat-group">
+      <div class="cat-title">Ⅳ. 대시보드 구조 혁신</div>
+      <div class="nav-item" onclick="loadSample(16)">
+        <span class="nav-num">16</span> 3단계 결정 트리
+      </div>
+      <div class="nav-item" onclick="loadSample(17)">
+        <span class="nav-num">17</span> 신문 1면 헤드라인 대결
+      </div>
+      <div class="nav-item" onclick="loadSample(18)">
+        <span class="nav-num">18</span> 타임라인 파도 애니메이션
+      </div>
+      <div class="nav-item" onclick="loadSample(19)">
+        <span class="nav-num">19</span> 기업 안전 스코어보드
+      </div>
+      <div class="nav-item" onclick="loadSample(20)">
+        <span class="nav-num">20</span> AI 시장 기상청
+      </div>
+    </div>
+  </aside>
+
+  <!-- Content -->
+  <main class="content-area">
+    <div class="sample-meta">
+      <span class="sample-cat-tag" id="sampleCat">카테고리 Ⅰ. 시각적 대결 UI</span>
+      <h1 class="sample-title" id="sampleTitle">01. 줄다리기 다이내믹 게이지</h1>
+      <p class="sample-desc" id="sampleDesc">
+        버블파(붉은색)와 실체파(푸른색)가 팽팽하게 줄다리기를 펼치는 연출입니다. 8개 검증 지표의 종합 점수에 따라 로프의 중앙 위치가 실시간 이동하며 승패 판세를 1초 만에 보여줍니다.
+      </p>
+    </div>
+
+    <div class="sample-canvas" id="sampleCanvas">
+      <!-- Dynamic Component injected here -->
+    </div>
+  </main>
+</div>
+
+<script>
+// Data Store
+const samplesData = {
+  1: {
+    cat: "카테고리 Ⅰ. 시각적 대결 UI",
+    title: "01. 줄다리기 다이내믹 게이지",
+    desc: "버블파(붉은색)와 실체파(푸른색)가 팽팽하게 줄다리기를 펼치는 연출입니다. 종합 점수에 따라 로프의 중앙 위치가 실시간 이동하며 판세를 1초 만에 보여줍니다.",
+    render: () => `
+      <div class="tug-container">
+        <div class="tug-scoreboard">
+          <span style="color:var(--bubble-red)">🔴 버블파 (35점)</span>
+          <span style="color:var(--fact-cyan)">🔵 실체파 (65점)</span>
+        </div>
+        <div class="tug-track">
+          <div class="tug-rope" id="tugRope" style="width: 65%"></div>
+          <div class="tug-flag" id="tugFlag" style="left: 65%">🚩</div>
+        </div>
+        <p style="color:var(--text-muted); font-size:14px;">현재 SEC 공시 검증 결과: <strong>실체파 65:35 우세!</strong> (8개 지표 중 6개 반증 완료)</p>
+        <div class="tug-btn-group">
+          <button class="btn-action btn-bubble" onclick="updateTug(35)">버블 우려 가중</button>
+          <button class="btn-action btn-fact" onclick="updateTug(80)">실체 데이터 가중</button>
+        </div>
+      </div>
+    `
+  },
+  2: {
+    cat: "카테고리 Ⅰ. 시각적 대결 UI",
+    title: "02. 법정 공방 모드 (Courtroom Trial)",
+    desc: "버블 논쟁을 재판 형식으로 구성했습니다. 검사(버블파)의 주장에 대해 변호인(실체파)이 SEC 공시 데이터를 제출하고, 판사가 망치를 쳐 기각/입증을 판결합니다.",
+    render: () => `
+      <div class="court-container">
+        <div class="gavel-box" id="gavelBox">
+          <div class="gavel-icon">⚖️</div>
+          <div><span class="verdict-stamp">판결: 버블 혐의 기각 (실체 우세)</span></div>
+        </div>
+        <div class="trial-rows">
+          <div class="trial-card prosecution">
+            <div>
+              <strong>[검사 주장]</strong> 빅테크 AI Capex 폭증으로 자금 고갈 우려
+            </div>
+            <span class="vs-badge bubble">기각됨</span>
+          </div>
+          <div class="trial-card defense">
+            <div>
+              <strong>[변호인 증거]</strong> SEC 10-Q 공시: OCF $231B 중 Capex 비율 43.5% (자체 해결)
+            </div>
+            <span class="vs-badge fact">증거 채택</span>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  3: {
+    cat: "카테고리 Ⅰ. 시각적 대결 UI",
+    title: "03. 스플릿 스크린 카포 (Split-Screen Faceoff)",
+    desc: "화면을 좌우로 반 나누어 버블파 주장과 실체파 반론을 1:1 대치시킵니다. 카드를 클릭하면 상대편의 직격 반론이 강조됩니다.",
+    render: () => `
+      <div class="split-container">
+        <div class="split-col bubble-side">
+          <h3 style="color:var(--bubble-red); margin-bottom:12px;">🔴 버블론자 주장</h3>
+          <div class="split-card" onclick="highlightPair(1)">
+            <strong>P-A-01: 투자가 매출보다 빠르다</strong>
+            <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">매출 성장이 Capex 폭증을 못 따라잡는다.</p>
+          </div>
+          <div class="split-card" onclick="highlightPair(2)">
+            <strong>P-A-03: 자체 수익으로 감당 불가</strong>
+            <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">빅테크 현금흐름에 경고등 점등.</p>
+          </div>
+        </div>
+        <div class="split-col fact-side">
+          <h3 style="color:var(--fact-cyan); margin-bottom:12px;">🔵 실체파 직격 반론</h3>
+          <div class="split-card" id="pair1">
+            <strong>반론: 매출도 26% 급증 중 (균형)</strong>
+            <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">SEC 확인 결과 매출 성장이 투자속도 상쇄.</p>
+          </div>
+          <div class="split-card" id="pair2">
+            <strong>반론: 현금 여유 25% (반증됨)</strong>
+            <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">영업현금흐름($130B)이 투자비보다 훨씬 많음.</p>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  4: {
+    cat: "카테고리 Ⅰ. 시각적 대결 UI",
+    title: "04. 천칭 저울 UI (Balance Scale)",
+    desc: "재무 데이터를 물리적인 '무게(kg)'로 환산하여 양쪽 저울판 위에 올려놓는 시각화 방식입니다. 실체파 현금이 훨씬 무겁게 기울어집니다.",
+    render: () => `
+      <div class="scale-wrapper">
+        <div class="scale-beam" style="transform: rotate(-8deg);">
+          <div class="scale-pan left">
+            <span class="vs-badge bubble">투자 위험</span>
+            <span class="scale-weight" style="color:var(--bubble-red)">$100.5B</span>
+            <span style="font-size:11px; color:var(--text-muted)">합산 Capex</span>
+          </div>
+          <div class="scale-pan right">
+            <span class="vs-badge fact">현금 방어력</span>
+            <span class="scale-weight" style="color:var(--fact-cyan)">$231.0B</span>
+            <span style="font-size:11px; color:var(--text-muted)">합산 OCF (우세)</span>
+          </div>
+        </div>
+        <p style="color:var(--text-muted); font-size:13px; margin-top:60px;">⚖️ 영업현금흐름($231B) 무게가 설비투자($100.5B) 무게를 압도하여 실체파 쪽으로 기울어져 있습니다.</p>
+      </div>
+    `
+  },
+  5: {
+    cat: "카테고리 Ⅰ. 시각적 대결 UI",
+    title: "05. 스포츠 전광판 중계 (Sports Scoreboard)",
+    desc: "E-스포츠/격투기 라운드 중계판 형태로 표현합니다. 라운드별 KO/판정 승패와 하단 라이브 브로드캐스트 텍스트가 전송됩니다.",
+    render: () => `
+      <div class="scoreboard-box">
+        <div class="sb-header">
+          <span>ROUND 3/3 COMPLETED</span>
+          <span>LIVE SEC BROADCAST</span>
+        </div>
+        <div class="sb-teams">
+          <div>
+            <div style="color:var(--bubble-red); font-size:14px; font-weight:700;">BUBBLE TEAM</div>
+            <div class="sb-score">1</div>
+          </div>
+          <div style="color:var(--accent-gold); font-size:20px; font-weight:800;">VS</div>
+          <div>
+            <div style="color:var(--fact-cyan); font-size:14px; font-weight:700;">FACT TEAM</div>
+            <div class="sb-score">7</div>
+          </div>
+        </div>
+        <div class="sb-ticker">
+          🎙️ [중계석] 빅테크 현금 방어선 굳건! 실체팀 7:1 대승 거두며 버블 우려 완파!
+        </div>
+      </div>
+    `
+  },
+  6: {
+    cat: "카테고리 Ⅱ. 비유 & 스토리텔링",
+    title: "06. 건물주 비유 카드 (House Building Analogy)",
+    desc: "복잡한 기업 재무를 '건축 공사비 vs 건물주 통장 잔고' 비유로 바꾼 카드입니다.",
+    render: () => `
+      <div class="house-grid">
+        <div class="house-card">
+          <div class="house-icon">🏗️</div>
+          <h4 style="margin-bottom:8px;">건물 공사비 (Capex)</h4>
+          <div style="font-size:24px; font-family:var(--font-display); font-weight:800; color:var(--bubble-red)">100조 원</div>
+          <p style="font-size:12px; color:var(--text-muted); margin-top:8px;">"공사비 많이 든다고 건물주 망하나요?"</p>
+        </div>
+        <div class="house-card">
+          <div class="house-icon">🏦</div>
+          <h4 style="margin-bottom:8px;">건물주 통장 잔고 (OCF)</h4>
+          <div style="font-size:24px; font-family:var(--font-display); font-weight:800; color:var(--fact-cyan)">231조 원</div>
+          <p style="font-size:12px; color:var(--text-muted); margin-top:8px;">"공사비 내고도 131조 원 흑자 통장 남음!"</p>
+        </div>
+      </div>
+    `
+  },
+  7: {
+    cat: "카테고리 Ⅱ. 비유 & 스토리텔링",
+    title: "07. 고속도로와 통행료 (Highway Metaphor)",
+    desc: "AI 서버를 8차선 고속도로에 비유합니다. 차(유료 사용자)가 통행료(NVIDIA 62% 영업이익률)를 충분히 내는지 검증합니다.",
+    render: () => `
+      <div class="highway-box">
+        <h3>🛣️ AI 8차선 고속도로 건설 현황</h3>
+        <div class="road-visual">
+          🚗 🚙 🚚 🏎️ 🚌 (유료 차선 62% 마진 획득 중)
+        </div>
+        <p style="font-size:13px; color:#aaa; line-height:1.6;">
+          버블파는 "차도 안 다니는데 도로만 넓힌다"고 주장하지만, 실제 통행료 수입 마진이 <strong>+5.5%p 확대(62%)</strong>되어 도로 건설비를 상쇄 중입니다.
+        </p>
+      </div>
+    `
+  },
+  8: {
+    cat: "카테고리 Ⅱ. 비유 & 스토리텔링",
+    title: "08. 닷컴버블 타임머신 (1999 vs 2026)",
+    desc: "진짜 거품이었던 1999년 닷컴 버블 당시와 현재 2026년 AI 빅테크의 재무 체급을 비교합니다.",
+    render: () => `
+      <div class="tm-compare">
+        <div class="tm-card year1999">
+          <h3 style="color:var(--bubble-red)">💥 1999 닷컴버블</h3>
+          <ul style="font-size:13px; color:var(--text-muted); margin-top:12px; line-height:1.8; list-style-position:inside;">
+            <li>매출 0원 껍데기 기업</li>
+            <li>막대한 부채 & 빚 투자</li>
+            <li>거품 붕괴 멸망 💀</li>
+          </ul>
+        </div>
+        <div class="tm-card year2026">
+          <h3 style="color:var(--fact-cyan)">🪨 2026 AI 빅테크</h3>
+          <ul style="font-size:13px; color:var(--text-muted); margin-top:12px; line-height:1.8; list-style-position:inside;">
+            <li>분기 매출 $513B 폭발</li>
+            <li>자체 현금으로 100% 충당</li>
+            <li>단단한 바위 체급 🛡️</li>
+          </ul>
+        </div>
+      </div>
+    `
+  },
+  9: {
+    cat: "카테고리 Ⅱ. 비유 & 스토리텔링",
+    title: "09. 우리집 가계부 환산기 (Household Budget)",
+    desc: "조 단위 숫자를 '연봉 1억 원 가구 가계부'로 직관 환산하여 사용자가 쉽게 감을 잡게 합니다.",
+    render: () => `
+      <div class="budget-box">
+        <h3>💵 연봉 1억 원 우리집 가계부로 치면?</h3>
+        <div style="font-size:32px; font-family:var(--font-display); font-weight:800; color:var(--accent-gold); margin:16px 0;">
+          최신 컴퓨터 4,350만 원 구매
+        </div>
+        <p style="font-size:14px; color:var(--text-muted);">
+          "연봉 1억 버는 집에서 4,350만 원 지른 셈이지만, <strong>통장에 5,650만 원 현금이 그대로 남아있어</strong> 파산 위험 없음!"
+        </p>
+      </div>
+    `
+  },
+  10: {
+    cat: "카테고리 Ⅱ. 비유 & 스토리텔링",
+    title: "10. 거품 온도계 & 신호등 (Bubble Thermometer)",
+    desc: "현재 거품 상태를 온도(28℃)와 초록/주황/빨강 신호등으로 한눈에 파악합니다.",
+    render: () => `
+      <div class="thermo-box">
+        <div class="thermo-tube">
+          <div class="thermo-mercury"></div>
+        </div>
+        <div style="text-align:left">
+          <span class="vs-badge fact" style="font-size:14px;">🟢 정상 안전지대</span>
+          <div class="thermo-readout">28°C</div>
+          <p style="font-size:13px; color:var(--text-muted); margin-top:8px;">
+            70°C 이상이면 빚내서 투자하는 위험 단계입니다.<br>현재 28°C로 매우 안전한 쾌적 수준입니다.
+          </p>
+        </div>
+      </div>
+    `
+  },
+  11: {
+    cat: "카테고리 Ⅲ. 인터랙티브 & 참여형",
+    title: "11. 팩트체크 퀴즈 시뮬레이터",
+    desc: "관람객이 직접 O/X 버튼을 눌러 잘못된 편견을 바로잡는 참여형 퀴즈입니다.",
+    render: () => `
+      <div class="quiz-box">
+        <span class="vs-badge bubble">Q1 / 3</span>
+        <h3 style="margin-top:12px;">"빅테크 기업들이 빚을 내서 AI 서버를 사고 있을까요?"</h3>
+        <div class="quiz-options">
+          <button class="quiz-btn" onclick="answerQuiz(true)">⭕ 예, 빚내서 삽니다</button>
+          <button class="quiz-btn" onclick="answerQuiz(false)">❌ 아니오, 번 돈으로 삽니다</button>
+        </div>
+        <div id="quizFeedback" style="margin-top:16px; font-size:13px; display:none;"></div>
+      </div>
+    `
+  },
+  12: {
+    cat: "카테고리 Ⅲ. 인터랙티브 & 참여형",
+    title: "12. 시나리오 슬라이더 (What-If Simulator)",
+    desc: "엔비디아 매출 폭락 등 극단적 상황을 사용자가 직접 슬라이더로 움직여 보며 버블 전환 지점을 테스트합니다.",
+    render: () => `
+      <div class="scenario-box">
+        <h3>🎚️ 엔비디아 GPU 매출 변동 슬라이더</h3>
+        <input type="range" class="scenario-slider" min="-80" max="80" value="0" id="scenSlider" oninput="runScenario(this.value)">
+        <div style="font-size:18px; font-weight:700; margin:12px 0;" id="scenVal">현재 매출 유지 (0%)</div>
+        <div class="scenario-meter">
+          <div class="scenario-fill" id="scenFill"></div>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted)" id="scenText">버블 위험도: <strong>25% (매우 안전)</strong></p>
+      </div>
+    `
+  },
+  13: {
+    cat: "카테고리 Ⅲ. 인터랙티브 & 참여형",
+    title: "13. 소문 vs 공시 플립카드 (Mythbuster)",
+    desc: "카드를 클릭하면 3D로 뒤집히며 세간의 버블 소문 뒤에 숨겨진 진실(SEC 공시)이 드러납니다.",
+    render: () => `
+      <div class="flip-grid">
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <span style="font-size:24px; margin-bottom:8px;">🗣️</span>
+              <strong>소문: "밑지고 장사한다"</strong>
+              <span style="font-size:11px; color:var(--text-muted); margin-top:8px;">클릭해서 뒤집기 👆</span>
+            </div>
+            <div class="flip-back">
+              <strong>📑 SEC 공시 팩트</strong>
+              <p style="font-size:12px; margin-top:6px;">NVIDIA 영업이익률 62% 달성 (역대 최고 돈방석)</p>
+            </div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <span style="font-size:24px; margin-bottom:8px;">🗣️</span>
+              <strong>소문: "투자가 폭주한다"</strong>
+              <span style="font-size:11px; color:var(--text-muted); margin-top:8px;">클릭해서 뒤집기 👆</span>
+            </div>
+            <div class="flip-back">
+              <strong>📑 SEC 공시 팩트</strong>
+              <p style="font-size:12px; margin-top:6px;">매출 성장이 투자 성장을 40%p 앞서며 균형 유지</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  14: {
+    cat: "카테고리 Ⅲ. 인터랙티브 & 참여형",
+    title: "14. 빅테크 6대장 카드배틀 (Hero Cards)",
+    desc: "빅테크 6개 기업을 RPG 영웅 카드로 표현하여 각각의 현금 방어력과 버블 위험 스탯을 비교합니다.",
+    render: () => `
+      <div class="hero-grid">
+        <div class="hero-card">
+          <div class="hero-avatar">🟢</div>
+          <strong>NVIDIA</strong>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">🛡️ 마진: 62%</div>
+          <div style="font-size:11px; color:var(--fact-cyan); font-weight:700;">방어력 MAX</div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-avatar">🟦</div>
+          <strong>Microsoft</strong>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">🛡️ OCF: $130B</div>
+          <div style="font-size:11px; color:var(--fact-cyan); font-weight:700;">현금왕</div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-avatar">🔷</div>
+          <strong>Meta</strong>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">🛡️ Capex/OCF 38%</div>
+          <div style="font-size:11px; color:var(--accent-gold); font-weight:700;">공격형 투자</div>
+        </div>
+      </div>
+    `
+  },
+  15: {
+    cat: "카테고리 Ⅲ. 인터랙티브 & 참여형",
+    title: "15. 인스타그램 스토리 모드",
+    desc: "모바일 친화적인 스토리 카드로 한 편의 숏폼 뉴스처럼 손쉽게 정보를 넘겨봅니다.",
+    render: () => `
+      <div class="story-phone">
+        <div>
+          <div class="story-bar"><div class="story-progress"></div></div>
+          <span style="font-size:11px; opacity:0.8;">AI 버블 팩트체크 • 1/5</span>
+          <h2 style="font-size:22px; margin-top:20px; line-height:1.4;">"AI 버블? 3분 만에 종결해드립니다"</h2>
+          <p style="font-size:13px; opacity:0.9; margin-top:16px;">
+            빅테크 기업들은 지금 빚이 아니라 <strong>자체 벌어들인 통장 현금</strong>으로 서버를 사고 있습니다.
+          </p>
+        </div>
+        <div style="text-align:center; font-size:12px; opacity:0.7; padding-bottom:12px;">
+          화면을 탭하여 다음 장 ➡️
+        </div>
+      </div>
+    `
+  },
+  16: {
+    cat: "카테고리 Ⅳ. 대시보드 구조 혁신",
+    title: "16. 3단계 결정 트리 (Decision Tree)",
+    desc: "3개의 질문 관문을 거치며 최종 판정에 도달하는 직관적 트리 구조입니다.",
+    render: () => `
+      <div class="tree-box">
+        <div class="tree-node active">
+          <span>Q1. 제 돈 주고 투자하고 있나요?</span>
+          <strong style="color:var(--accent-green)">YES (통과)</strong>
+        </div>
+        <div class="tree-node active">
+          <span>Q2. 매출도 같이 늘고 있나요?</span>
+          <strong style="color:var(--accent-green)">YES (통과)</strong>
+        </div>
+        <div class="tree-node active">
+          <span>Q3. 가격 결정권이 유지되나요?</span>
+          <strong style="color:var(--accent-green)">YES (통과)</strong>
+        </div>
+        <div style="text-align:center; padding:16px; background:var(--fact-bg); border:1px solid var(--fact-border); border-radius:10px; color:var(--fact-cyan); font-weight:700;">
+          🎉 3개 관문 모두 통과: 현재 "버블 아님" 검증 완결
+        </div>
+      </div>
+    `
+  },
+  17: {
+    cat: "카테고리 Ⅳ. 대시보드 구조 혁신",
+    title: "17. 신문 1면 헤드라인 대결",
+    desc: "'버블일보'와 '실체일보' 두 신문 헤드라인을 가판대 스타일로 대립시켜 읽는 재미를 줍니다.",
+    render: () => `
+      <div class="paper-box">
+        <div class="paper-head">THE FINANCIAL TIMES</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; font-size:12px;">
+          <div style="border-right:1px solid #ccc; padding-right:12px;">
+            <h4 style="font-size:16px; color:#b91c1c; margin-bottom:6px;">[버블일보]</h4>
+            <strong>"서버 비용 폭증! 수익화 속도 의구심"</strong>
+            <p style="margin-top:6px; color:#444;">빅테크 설비투자가 역대 최대치를 경신하며 시장 우려 고조...</p>
+          </div>
+          <div>
+            <h4 style="font-size:16px; color:#0369a1; margin-bottom:6px;">[실체일보]</h4>
+            <strong>"역대급 흑자 잔치! 현금으로 100% 충당"</strong>
+            <p style="margin-top:6px; color:#444;">영업현금흐름 $231B 달성으로 투자비 감당하고도 수십조 남아...</p>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  18: {
+    cat: "카테고리 Ⅳ. 대시보드 구조 혁신",
+    title: "18. 타임라인 파도 애니메이션",
+    desc: "8개 분기 동안 버블 우려 파도가 꺾이고 실체 방파제에 부딪혀 소멸되는 타임라인 비주얼입니다.",
+    render: () => `
+      <div class="wave-box">
+        <h3>🌊 8분기 연속 버블 우려 상쇄 추이</h3>
+        <svg class="wave-svg" viewBox="0 0 400 120">
+          <path d="M0 80 Q 100 20, 200 70 T 400 30" fill="none" stroke="var(--fact-cyan)" stroke-width="4" />
+          <circle cx="350" cy="35" r="8" fill="var(--accent-green)" />
+        </svg>
+        <p style="font-size:13px; color:var(--text-muted)">'24Q3부터 '26Q2까지 8분기 연속 실체 데이터 방파제가 우세함을 유지했습니다.</p>
+      </div>
+    `
+  },
+  19: {
+    cat: "카테고리 Ⅳ. 대시보드 구조 혁신",
+    title: "19. 기업 안전 스코어보드",
+    desc: "빅테크 기업별 버블 안전 점수(0~100점)를 매트릭스로 제시하여 개별 주식 관점의 불안을 해소합니다.",
+    render: () => `
+      <div class="matrix-grid">
+        <div class="matrix-card">
+          <div><strong>MSFT</strong><br><span style="font-size:11px; color:var(--text-muted)">마이크로소프트</span></div>
+          <div class="matrix-score">95점</div>
+        </div>
+        <div class="matrix-card">
+          <div><strong>NVDA</strong><br><span style="font-size:11px; color:var(--text-muted)">엔비디아</span></div>
+          <div class="matrix-score">92점</div>
+        </div>
+        <div class="matrix-card">
+          <div><strong>GOOGL</strong><br><span style="font-size:11px; color:var(--text-muted)">알파벳</span></div>
+          <div class="matrix-score">88점</div>
+        </div>
+      </div>
+    `
+  },
+  20: {
+    cat: "카테고리 Ⅳ. 대시보드 구조 혁신",
+    title: "20. AI 시장 기상청 (Market Weather Report)",
+    desc: "복잡한 경제 상황을 '일기예보 기상청' 날씨 캐릭터로 친근하게 리포팅합니다.",
+    render: () => `
+      <div class="weather-box">
+        <div class="weather-icon">☀️</div>
+        <h2 style="color:var(--text-main); margin-bottom:4px;">오늘의 AI 버블 지수: "맑음"</h2>
+        <span class="vs-badge fact">버블 위험 매우 낮음</span>
+        <div style="display:flex; justify-content:space-around; margin-top:24px; font-size:13px; color:var(--text-muted);">
+          <div>반도체: ☀️ 맑음</div>
+          <div>빅테크 자금: ☀️ 쾌청</div>
+          <div>구매약정: 🌧️ 소나기</div>
+        </div>
+      </div>
+    `
+  }
+};
+
+// UI Handlers
+function loadSample(num) {
+  const data = samplesData[num];
+  if (!data) return;
+  
+  // Update Nav
+  document.querySelectorAll('.nav-item').forEach((el, idx) => {
+    if (idx + 1 === num) el.classList.add('active');
+    else el.classList.remove('active');
+  });
+
+  // Update Meta
+  document.getElementById('sampleCat').textContent = data.cat;
+  document.getElementById('sampleTitle').textContent = data.title;
+  document.getElementById('sampleDesc').textContent = data.desc;
+
+  // Render Canvas
+  document.getElementById('sampleCanvas').innerHTML = data.render();
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  if (html.classList.contains('dark')) {
+    html.classList.remove('dark');
+    html.classList.add('light');
+    document.getElementById('themeIcon').textContent = '☀️';
+    document.getElementById('themeText').textContent = '라이트 모드';
+  } else {
+    html.classList.remove('light');
+    html.classList.add('dark');
+    document.getElementById('themeIcon').textContent = '🌙';
+    document.getElementById('themeText').textContent = '다크 모드';
+  }
+}
+
+// Sample Specific Interactivity Functions
+function updateTug(val) {
+  document.getElementById('tugRope').style.width = val + '%';
+  document.getElementById('tugFlag').style.left = val + '%';
+}
+
+function highlightPair(num) {
+  document.querySelectorAll('.split-card').forEach(el => el.classList.remove('highlight'));
+  document.getElementById('pair' + num).classList.add('highlight');
+}
+
+function answerQuiz(userAns) {
+  const fb = document.getElementById('quizFeedback');
+  fb.style.display = 'block';
+  if (!userAns) {
+    fb.innerHTML = '<span style="color:var(--accent-green); font-weight:700;">🎉 정답입니다!</span> 빅테크 6개사는 OCF $231B를 올려 투자비 $100B를 100% 자체 통장 현금으로 지불하고 있습니다.';
+  } else {
+    fb.innerHTML = '<span style="color:var(--bubble-red); font-weight:700;">❌ 틀렸습니다.</span> SEC 공시 확인 결과 빚을 내는 것이 아니라 자체 벌어들인 현금으로 지불 중입니다.';
+  }
+}
+
+function runScenario(val) {
+  const fill = document.getElementById('scenFill');
+  const txt = document.getElementById('scenText');
+  const valTxt = document.getElementById('scenVal');
+  valTxt.textContent = `NVIDIA 매출 변동률: ${val > 0 ? '+' : ''}${val}%`;
+  
+  const risk = Math.max(0, Math.min(100, 25 - parseInt(val)));
+  fill.style.width = risk + '%';
+  if (risk > 60) {
+    fill.style.background = 'var(--bubble-red)';
+    txt.innerHTML = `버블 위험도: <strong style="color:var(--bubble-red)">${risk}% (위험 경고!)</strong>`;
+  } else {
+    fill.style.background = 'var(--accent-green)';
+    txt.innerHTML = `버블 위험도: <strong style="color:var(--accent-green)">${risk}% (안전)</strong>`;
+  }
+}
+
+// Initialize First Sample
+window.addEventListener('DOMContentLoaded', () => {
+  loadSample(1);
+});
+</script>
+
+</body>
+</html>

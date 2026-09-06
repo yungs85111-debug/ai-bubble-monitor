@@ -1,0 +1,64 @@
+Checking tag availability for cohorts: hyper, neo, semis
+
+Tickers to check: AAPL, AMAT, AMD, AMZN, ASML, AVGO, GOOGL, INTC, LRCX, META, 
+MSFT, MU, NVDA, QCOM, TSM
+
+[22:19:04] INFO     Checking AAPL...                               doctor.py:39
+           INFO     Checking AMAT...                               doctor.py:39
+           INFO     Checking AMD...                                doctor.py:39
+[22:19:05] INFO     Checking AMZN...                               doctor.py:39
+           INFO     Checking ASML...                               doctor.py:39
+           INFO     Checking AVGO...                               doctor.py:39
+           INFO     Checking GOOGL...                              doctor.py:39
+           INFO     Checking INTC...                               doctor.py:39
+           INFO     Checking LRCX...                               doctor.py:39
+           INFO     Checking META...                               doctor.py:39
+           INFO     Checking MSFT...                               doctor.py:39
+           INFO     Checking MU...                                 doctor.py:39
+[22:19:06] INFO     Checking NVDA...                               doctor.py:39
+           INFO     Checking QCOM...                               doctor.py:39
+           INFO     Checking TSM...                                doctor.py:39
+                    Self-Funding Indicators (4 tags)                    
++----------------------------------------------------------------------+
+| Ticker   |    capex     |     ocf      |   revenue    |  net_income  |
+|----------+--------------+--------------+--------------+--------------|
+| AAPL     |    OK (3)    |    OK (1)    |    OK (3)    |    OK (1)    |
+| AMAT     |    OK (2)    |    OK (1)    |    OK (3)    |    OK (1)    |
+| AMD      |    OK (2)    |    OK (1)    |    OK (3)    |    OK (3)    |
+| AMZN     |    OK (3)    |    OK (1)    |    OK (2)    |    OK (1)    |
+| ASML     |    OK (2)    |    OK (1)    |    OK (2)    |    OK (1)    |
+| AVGO     |    OK (2)    |    OK (1)    |    OK (3)    |    OK (3)    |
+| GOOGL    |    OK (2)    |    OK (1)    |    OK (2)    |    OK (2)    |
+| INTC     |    OK (2)    |    OK (1)    |    OK (2)    |    OK (2)    |
+| LRCX     |    OK (2)    |    OK (1)    |    OK (3)    |    OK (1)    |
+| META     |    OK (2)    |    OK (1)    |    OK (2)    |    OK (2)    |
+| MSFT     |    OK (1)    |    OK (1)    |    OK (3)    |    OK (1)    |
+| MU       |    OK (2)    |    OK (1)    |    OK (3)    |    OK (2)    |
+| NVDA     |    OK (3)    |    OK (1)    |    OK (2)    |    OK (1)    |
+| QCOM     |    OK (1)    |    OK (1)    |    OK (1)    |    OK (2)    |
+| TSM      |      X       |      X       |      X       |      X       |
++----------------------------------------------------------------------+
+
+                          Off-Balance Sheet (8 tags)                           
++-----------------------------------------------------------------------------+
+| T・ | purch・ | opera・ | capit・ | debt_・ | total・ | total・ | stock・ | deprec・ |
+|----+--------+--------+--------+--------+--------+--------+--------+---------|
+| A・ | OK (1) | OK (2) | OK (1) | OK (2) | OK (1) | OK (1) | OK (1) | OK (2)  |
+| A・ |   X    | OK (2) | OK (1) | OK (2) | OK (1) | OK (1) | OK (2) | OK (2)  |
+| A・ | OK (2) | OK (2) | OK (1) | OK (2) | OK (1) |   X    | OK (1) | OK (2)  |
+| A・ | OK (2) | OK (2) | OK (2) | OK (2) | OK (1) |   X    | OK (1) | OK (2)  |
+| A・ | OK (2) | OK (2) | OK (1) | OK (2) | OK (1) | OK (1) | OK (1) | OK (2)  |
+| A・ | OK (2) | OK (2) | OK (1) | OK (2) | OK (1) | OK (1) | OK (2) | OK (2)  |
+| G・ | OK (1) | OK (2) | OK (1) | OK (2) | OK (1) | OK (1) | OK (1) | OK (1)  |
+| I・ |   X    | OK (1) |   X    | OK (2) | OK (1) |   X    | OK (2) | OK (1)  |
+| L・ | OK (2) | OK (2) | OK (1) | OK (2) | OK (1) | OK (1) | OK (1) | OK (1)  |
+| M・ | OK (1) | OK (2) | OK (1) | OK (2) | OK (1) | OK (1) | OK (1) | OK (2)  |
+| M・ |   X    | OK (2) | OK (1) | OK (2) | OK (1) | OK (1) | OK (1) | OK (1)  |
+| MU | OK (1) | OK (2) | OK (2) | OK (2) | OK (1) | OK (1) | OK (2) | OK (2)  |
+| N・ | OK (1) | OK (2) |   X    | OK (2) | OK (1) | OK (1) | OK (1) | OK (2)  |
+| Q・ | OK (3) | OK (2) |   X    | OK (2) | OK (1) | OK (1) | OK (2) | OK (2)  |
+| T・ |   X    |   X    |   X    |   X    |   X    |   X    |   X    |    X    |
++-----------------------------------------------------------------------------+
+
+Summary: Checked 15 tickers
+Tickers with all self-funding tags: 14/15

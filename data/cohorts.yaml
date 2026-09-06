@@ -1,0 +1,39 @@
+# Cohort Definitions
+# Each cohort is a named group of tickers for analysis
+
+hyper:
+  name: "AI Hyperscalers"
+  description: "Major cloud/AI infrastructure companies with significant AI capex"
+  tickers:
+    - NVDA   # NVIDIA Corporation
+    - MSFT   # Microsoft Corporation
+    - GOOGL  # Alphabet Inc.
+    - META   # Meta Platforms Inc.
+    - AMZN   # Amazon.com Inc.
+    - AAPL   # Apple Inc.
+
+neo:
+  name: "AI Neo-Capex"
+  description: "AI-focused companies with heavy infrastructure investment"
+  tickers:
+    - NVDA   # NVIDIA Corporation
+    - AMD    # Advanced Micro Devices
+    - AVGO   # Broadcom Inc.
+    - INTC   # Intel Corporation
+    - QCOM   # Qualcomm Inc.
+    - TSM    # Taiwan Semiconductor (ADR)
+
+semis:
+  name: "Semiconductor Supply Chain"
+  description: "Semiconductor manufacturers and equipment suppliers"
+  tickers:
+    - NVDA
+    - AMD
+    - INTC
+    - AVGO
+    - QCOM
+    - TSM
+    - ASML   # ASML Holding
+    - LRCX   # Lam Research
+    - AMAT   # Applied Materials
+    - MU     # Micron Technology

@@ -1,0 +1,105 @@
+# Threshold Definitions
+# Each indicator has configurable thresholds for rule evaluation
+#
+# Required fields for enabled thresholds (R13):
+#   anchor: numeric threshold value
+#   anchor_method: 'semantic' (required)
+#   anchor_rationale: explanation for the threshold choice (required)
+#   buffer: tolerance band (can be derived with `bm thresholds derive`)
+#   enabled: whether the threshold is active
+#
+# Thresholds without anchor_rationale cannot be enabled.
+
+self_funding_hyper:
+  anchor: 0.15
+  anchor_method: semantic
+  anchor_rationale: |
+    15% funding gap threshold based on historical median of
+    tech sector sustainable capex-to-revenue ratios (2015-2020).
+    Exceeding this level historically preceded capex cuts.
+  buffer: 0.48  # Derived from 2023-2024 quarterly volatility (median abs diff)
+  enabled: true  # Activated in T12
+  direction: above  # 'above' means breach when value > anchor + buffer
+  min_dwell_periods: 2  # Must stay above for 2 periods to trigger
+
+self_funding_neo:
+  anchor: 0.20
+  anchor_method: semantic
+  anchor_rationale: |
+    20% threshold for neo cohort reflects higher capex intensity
+    typical of semiconductor and hardware-focused companies.
+  buffer: 0.50  # Estimated - neo cohort has higher volatility than hyper
+  enabled: true  # Activated in T12
+  direction: above
+  min_dwell_periods: 2
+
+capex_ocf_ratio:
+  anchor: 0.80
+  anchor_method: semantic
+  anchor_rationale: |
+    80% capex-to-OCF ratio threshold. Above this level, companies
+    must rely on external financing or debt for capex programs.
+  buffer: 0.15  # Estimated - ratio-based indicators have moderate volatility
+  enabled: true  # Activated in T12
+  direction: above
+  min_dwell_periods: 1
+
+capex_revenue_growth_gap:
+  anchor: 0.10
+  anchor_method: semantic
+  anchor_rationale: |
+    10pp gap between capex growth and revenue growth. Sustained gaps
+    above this level indicate potential overinvestment.
+  buffer: 0.08  # Estimated - growth rate differences have moderate volatility
+  enabled: true  # Activated in T12
+  direction: above
+  min_dwell_periods: 2
+
+supply_chain_correlation:
+  anchor: 0.85
+  anchor_method: semantic
+  anchor_rationale: |
+    Rolling correlation above 0.85 between supply chain stocks
+    indicates synchronized movement suggesting systemic exposure.
+  buffer: 0.05
+  enabled: false
+  direction: above
+  min_dwell_periods: 4
+  replayable: false  # Requires market data not available historically
+
+memory_unit_price:
+  anchor: null  # To be determined
+  anchor_method: semantic
+  anchor_rationale: null
+  buffer: null
+  enabled: false
+  direction: below  # Concern when prices fall below threshold
+  replayable: false
+
+commitment_hhi:
+  anchor: 2500
+  anchor_method: semantic
+  anchor_rationale: |
+    HHI of 2500 indicates highly concentrated market.
+    Used as additional verification trigger only, not for direct premise changes.
+  buffer: 200
+  enabled: false
+  direction: above
+  trigger_only: true  # Does not change premise status directly
+
+commitment_scale:
+  anchor: null
+  anchor_method: semantic
+  anchor_rationale: null
+  buffer: null
+  enabled: false
+  direction: above
+
+gpu_pricing_trend:
+  anchor: null
+  anchor_method: semantic
+  anchor_rationale: null
+  buffer: null
+  enabled: false
+  direction: below
+  replayable: false

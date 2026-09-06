@@ -1,0 +1,74 @@
+# Premise Definitions
+# Each premise represents a testable claim about the AI bubble debate
+
+# Category A: Self-Funding & Financial Sustainability
+P-A-01:
+  category: A
+  statement: "AI hyperscalers' capex growth rate exceeds revenue growth rate"
+  indicator_id: capex_revenue_growth_gap
+  undecidable: false
+
+P-A-02:
+  category: A
+  statement: "AI capex as percentage of operating cash flow is at historic highs"
+  indicator_id: capex_ocf_ratio
+  undecidable: false
+
+P-A-03:
+  category: A
+  statement: "AI capex exceeds sustainable self-funding levels (hyperscaler cohort)"
+  indicator_id: self_funding_hyper
+  undecidable: false
+
+P-A-04:
+  category: A
+  statement: "AI capex exceeds sustainable self-funding levels (neo cohort)"
+  indicator_id: self_funding_neo
+  undecidable: false
+
+# Category B: Revenue Validation
+P-B-01:
+  category: B
+  statement: "AI infrastructure revenue growth justifies capex levels"
+  indicator_id: null
+  undecidable: true
+  undecidable_rationale: "AI-specific revenue not separately disclosed by most companies"
+
+P-B-02:
+  category: B
+  statement: "Customer AI adoption rates support infrastructure investments"
+  indicator_id: null
+  undecidable: true
+  undecidable_rationale: "Customer-level adoption data not publicly available"
+
+P-B-07:
+  category: B
+  statement: "GPU pricing power indicates sustained demand"
+  indicator_id: gpu_pricing_trend
+  undecidable: false
+
+# Category C: Market Structure
+P-C-01:
+  category: C
+  statement: "Semiconductor supply chain is overextended"
+  indicator_id: supply_chain_correlation
+  undecidable: false
+
+P-C-02:
+  category: C
+  statement: "Memory pricing indicates overcapacity"
+  indicator_id: memory_unit_price
+  undecidable: false
+
+# Category D: Commitment Concentration
+P-D-01:
+  category: D
+  statement: "Purchase commitments are concentrated in few suppliers"
+  indicator_id: commitment_hhi
+  undecidable: false
+
+P-D-02:
+  category: D
+  statement: "Long-term commitments exceed historical norms"
+  indicator_id: commitment_scale
+  undecidable: false

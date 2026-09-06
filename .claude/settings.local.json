@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(python -m bm.cli:*)",
+      "Bash(python -m pytest tests/test_db.py -v)",
+      "Bash(python -m pytest:*)",
+      "Bash(python -m bm:*)",
+      "Bash(bm --help:*)",
+      "Bash(python:*)",
+      "Bash(for ticker in MSFT GOOGL META AMZN AAPL)",
+      "Bash(do echo \"=== Collecting $ticker ===\")",
+      "Bash(done)",
+      "Bash(sqlite3:*)",
+      "Bash(curl:*)",
+      "Bash(bm backfill:*)",
+      "Bash(tee:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

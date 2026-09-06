@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 투자 버블 모니터</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .hero .update-time {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .status-text {
+            font-size: 32px;
+            font-weight: bold;
+            color: #10b981;
+            margin-bottom: 16px;
+        }
+
+        .status-detail {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .status-summary {
+            font-size: 20px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .metric-title {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .metric-icon {
+            font-size: 32px;
+        }
+
+        .metric-status {
+            font-size: 48px;
+        }
+
+        .metric-value {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .metric-description {
+            font-size: 13px;
+            color: #999;
+            line-height: 1.4;
+        }
+
+        /* Health Report */
+        .health-report {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+
+        .health-report h2 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e5e5e5;
+        }
+
+        .health-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .health-item:last-child {
+            border-bottom: none;
+        }
+
+        .health-label {
+            flex: 1;
+        }
+
+        .health-name {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .health-subtitle {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .health-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #10b981;
+            margin: 0 24px;
+        }
+
+        .health-range {
+            font-size: 14px;
+            color: #666;
+            margin: 0 24px;
+        }
+
+        .health-status {
+            font-size: 24px;
+        }
+
+        /* Summary Box */
+        .summary-box {
+            background: #f0fdf4;
+            border-left: 4px solid #10b981;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .summary-box h3 {
+            font-size: 16px;
+            color: #065f46;
+            margin-bottom: 12px;
+        }
+
+        .summary-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .summary-box li {
+            padding: 6px 0;
+            color: #047857;
+        }
+
+        .summary-box li::before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        /* Warning Box */
+        .warning-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .warning-box h3 {
+            font-size: 16px;
+            color: #92400e;
+            margin-bottom: 12px;
+        }
+
+        .warning-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .warning-box li {
+            padding: 6px 0;
+            color: #b45309;
+        }
+
+        .warning-box li::before {
+            content: "⚠ ";
+            color: #f59e0b;
+        }
+
+        /* Legend */
+        .legend {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 24px;
+        }
+
+        .legend h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .legend-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-icon {
+            font-size: 24px;
+        }
+
+        .legend-text {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 24px;
+            }
+
+            .status-text {
+                font-size: 24px;
+            }
+
+            .status-summary {
+                font-size: 16px;
+            }
+
+            .health-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .health-value, .health-range {
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>🔍 AI 투자 버블 모니터</h1>
+            <div class="update-time">최종 업데이트: 2026년 9월 5일</div>
+
+            <div class="status-badge">🟢</div>
+            <div class="status-text">건전</div>
+            <div class="status-detail">4개 전제 중 4개 반증 (100%)</div>
+            <div class="status-summary">버블 징후 발견 안 됨</div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div>
+                        <div class="metric-icon">📊</div>
+                        <div class="metric-title">투자 효율성</div>
+                    </div>
+                    <div class="metric-status">🟢</div>
+                </div>
+                <div class="metric-value">매출 증가 ≥ 투자 증가</div>
+                <div class="metric-description">Capex 성장률이 Revenue 성장률과 균형을 유지하고 있습니다</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div>
+                        <div class="metric-icon">💰</div>
+                        <div class="metric-title">자금 조달 여력</div>
+                    </div>
+                    <div class="metric-status">🟢</div>
+                </div>
+                <div class="metric-value">번 돈의 30%만 투자</div>
+                <div class="metric-description">OCF 대비 Capex 비율이 안전선(80%)보다 훨씬 낮습니다</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div>
+                        <div class="metric-icon">🏢</div>
+                        <div class="metric-title">빅테크 건전성</div>
+                    </div>
+                    <div class="metric-status">🟢</div>
+                </div>
+                <div class="metric-value">수익의 44% 여유</div>
+                <div class="metric-description">자체 수익으로 AI 투자를 충분히 감당하고 있습니다</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div>
+                        <div class="metric-icon">🔧</div>
+                        <div class="metric-title">반도체 건전성</div>
+                    </div>
+                    <div class="metric-status">🟢</div>
+                </div>
+                <div class="metric-value">수익의 42% 여유</div>
+                <div class="metric-description">공급망 기업들도 재무 건전성이 양호합니다</div>
+            </div>
+        </div>
+
+        <!-- Health Report -->
+        <div class="health-report">
+            <h2>📋 상세 검진 결과</h2>
+
+            <div class="health-item">
+                <div class="health-label">
+                    <div class="health-name">💵 자금 여유도 (빅테크)</div>
+                    <div class="health-subtitle">수익으로 투자 가능한 정도</div>
+                </div>
+                <div class="health-value">44%</div>
+                <div class="health-range">정상: &gt;0%</div>
+                <div class="health-status">✓</div>
+            </div>
+
+            <div class="health-item">
+                <div class="health-label">
+                    <div class="health-name">💵 자금 여유도 (반도체)</div>
+                    <div class="health-subtitle">수익으로 투자 가능한 정도</div>
+                </div>
+                <div class="health-value">42%</div>
+                <div class="health-range">정상: &gt;0%</div>
+                <div class="health-status">✓</div>
+            </div>
+
+            <div class="health-item">
+                <div class="health-label">
+                    <div class="health-name">📈 투자 성장 균형</div>
+                    <div class="health-subtitle">매출 증가 대비 투자 증가</div>
+                </div>
+                <div class="health-value">균형</div>
+                <div class="health-range">정상: 균형</div>
+                <div class="health-status">✓</div>
+            </div>
+
+            <div class="health-item">
+                <div class="health-label">
+                    <div class="health-name">💰 현금흐름 안정성</div>
+                    <div class="health-subtitle">투자금 중 현금흐름 사용 비율</div>
+                </div>
+                <div class="health-value">30%</div>
+                <div class="health-range">정상: &lt;80%</div>
+                <div class="health-status">✓</div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary-box">
+            <h3>✅ 종합 소견</h3>
+            <ul>
+                <li>빅테크 기업들이 벌어들이는 수익으로 AI 투자 충분히 감당</li>
+                <li>외부 자금 빌릴 필요 없음 (평균 여유 자금 43%)</li>
+                <li>투자 증가 속도가 매출 증가 속도와 균형</li>
+                <li>반도체 공급망 기업들도 재무 건전성 양호</li>
+                <li>현재 AI 투자는 지속 가능한 수준</li>
+            </ul>
+        </div>
+
+        <!-- Warning -->
+        <div class="warning-box">
+            <h3>⚠️ 주의사항</h3>
+            <ul>
+                <li>2026년 초 일부 분기에서 일시적 투자 급증 관찰됨</li>
+                <li>아직 지속적 추세는 아니지만, 계속 모니터링 필요</li>
+                <li>TSM(대만 반도체) 데이터 부족으로 완전한 평가 제한</li>
+            </ul>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <h3>📌 상태 표시 안내</h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-icon">🟢</div>
+                    <div class="legend-text">
+                        <strong>안전 (Safe)</strong><br>
+                        버블 징후 없음
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon">🟡</div>
+                    <div class="legend-text">
+                        <strong>주의 (Caution)</strong><br>
+                        일부 우려 신호
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon">🔴</div>
+                    <div class="legend-text">
+                        <strong>위험 (Warning)</strong><br>
+                        버블 가능성 높음
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
