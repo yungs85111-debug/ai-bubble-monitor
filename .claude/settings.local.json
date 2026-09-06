@@ -28,7 +28,8 @@
       "WebFetch(domain:www.sec.gov)",
       "Bash(scriptsdeploy.bat \"Add MSFT purchase obligations data \\($72B\\)\")",
       "Bash(./scripts/deploy.bat \"Add MSFT purchase obligations data \\($72B\\)\")",
-      "WebFetch(domain:microsoft.gcs-web.com)"
+      "WebFetch(domain:microsoft.gcs-web.com)",
+      "WebFetch(domain:data.sec.gov)"
     ]
   }
 }

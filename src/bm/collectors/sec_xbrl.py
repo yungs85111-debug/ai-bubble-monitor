@@ -35,8 +35,9 @@ TAGS_SELF_FUNDING = {
         "CashProvidedByUsedInOperatingActivitiesContinuingOperations",
     ],
     "revenue": [
+        "RevenueFromContractWithCustomerExcludingAssessedTax",  # Prefer newer standard
+        "RevenueFromContractWithCustomerIncludingAssessedTax",
         "Revenues",
-        "RevenueFromContractWithCustomerExcludingAssessedTax",
         "SalesRevenueNet",
         "TotalRevenuesAndOtherIncome",
     ],
@@ -488,6 +489,7 @@ class SecXbrlCollector(BaseCollector):
                     facts = self._parse_facts(facts_data, tag, metric_name)
                     if facts:
                         observations = self._to_quarterly(facts, ticker, metric_name)
+                        logger.info(f"{ticker} {metric_name} from {tag}: {len(observations)} observations")
 
                         # Apply date filters
                         if start_date or end_date:
@@ -504,10 +506,11 @@ class SecXbrlCollector(BaseCollector):
             logger.info(f"Collected {len(all_observations)} observations for {ticker}")
 
         # Deduplicate by (ticker, metric, period_end)
-        seen: set[tuple[str, str, str]] = set()
+        seen: set[tuple[str, str, str, str]] = set()
         unique_observations = []
         for obs in all_observations:
-            key = (obs.ticker or "", obs.metric, obs.period_end)
+            # Include period_start to distinguish quarterly vs YTD data
+            key = (obs.ticker or "", obs.metric, obs.period_start, obs.period_end)
             if key not in seen:
                 seen.add(key)
                 unique_observations.append(obs)
